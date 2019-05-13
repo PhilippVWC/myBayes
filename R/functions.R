@@ -1,5 +1,104 @@
 #### function library ####
-#### Dr. J. Lemm and P.v.W.Crommelin ###
+#### Dr. J.C. Lemm and P.v.W.Crommelin ###
+
+
+
+myOPT = function(candidates,fn,maximum = TRUE,maxit=200,bounds){
+  MX = apply(X = as.matrix(candidates),
+              MARGIN = 1,
+              FUN = function(row){
+                if(!maximum) fn = function(x) -fn(x)
+                fn_minus = function(x) -fn(x) # for minimum search
+                dim = length(row)
+                par = row[1:length(dim)]
+
+                if(dim==1){
+                  # combination of golden section search and parabolic interpolation
+                  del = abs(0.5*par)
+                  res = optimize(f = fn,
+                                 lower = par - del,
+                                 upper = par + del,
+                                 maximum = TRUE)
+                  newVals = c(res$objective,res$maximum,1)
+                }
+
+                # Generalized simmulated Annealing
+                res = GenSA(par = par,
+                            fn = fn_minus,
+                            lower = bounds[1],
+                            upper = bounds[2],
+                            control = list(maxit = maxit))
+                newVals = c(newVals,-res$value,res$par,2)
+
+                # Simulated Annealing - UNBOUNDED
+                res = optim(par = par,
+                            fn = fn_minus,
+                            method = "SANN",
+                            control = list(
+                              temp = 1, #Starting temperature
+                              tmax = 5 #number of function evaluations per temperature step
+                            ))
+                if(res$par <= domain_last & res$par >= domain_first){
+                  newVals = c(newVals,-res$value,res$par,3)
+                }
+
+                # Quasi Newton algorithm with approximated Hessian matrix - UNBOUNDED
+                res = optim(par = par,
+                            fn = fn_minus,
+                            method = "BFGS",
+                            gr = NULL, # if no analytical gradient function is provided, a finite difference method is used
+                            control = list(
+                              maxit = maxit,
+                              reltol = 1e-8
+                            ))
+                if(res$par <= domain_last & res$par >= domain_first){
+                  newVals = c(newVals,-res$value,res$par,4)
+                }
+
+                # Quasi Newton algorithm with approximated Hessian matrix - BOUNDED
+                res = Rvmmin(par = par,
+                             fn = fn_minus,
+                             gr = "grcentral", # "grfwd" = finite difference forward gradient (numerical gradient)
+                             lower = bounds[1],
+                             upper = bounds[2],
+                             maxit = maxit) #Stop computation, if estimators are out of bounds
+                newVals = c(newVals,-res$value,res$par,5)
+
+                # Lightweight BFGS - BFGS with box constraints
+                res = optim(par = par,
+                            fn = fn_minus,
+                            method = "L-BFGS-B",
+                            lower = bounds[1],
+                            upper = bounds[2],
+                            control = list(maxit = maxit)
+                )
+                newVals = c(newVals,-res$value,res$par,6)
+                print("vals")
+                print(newVals)
+                print("end vals")
+                return(newVals)
+              })
+  names = c("value",names(candidates),"methodCode")
+  methods = c("optimize","GenSA","SA","BFGS","Rvmmin","L-BFGS-B")
+  rows = length(names)
+  MX_df = data.frame(t(matrix(data = MX,
+                              nrow = rows)))
+  colnames(x = MX_df) = names
+  print("#####")
+  print(MX_df)
+  print("#####")
+  print(str(MX_df$methodCode))
+  print("#####")
+  print(MX_df$methodCode)
+  print("#####")
+  MX_df = cbind(MX_df[,-rows],data.frame("method" = methods[MX_df$methodCode]))
+  return(MX_df)
+}
+
+
+
+
+
 kroneckerDelta = function(x,x0){
   if (x == x0) 1
   else 0
@@ -184,8 +283,35 @@ discretizeMap = function(N,map,xlim){
   return(A)
 }
 
+
+max1d = function(vec,epsilon=1.0,maximum=TRUE,maxRows=NA){
+  if ( is.vector(vec) & epsilon>=0 & epsilon<=1 ){
+    l = length(vec)
+    if(maximum){
+      vec = data.frame(sort(x = vec,
+                            decreasing = TRUE,
+                            index.return = TRUE))
+    }else{
+      vec = data.frame(sort(x = vec,
+                            decreasing = FALSE,
+                            index.return = TRUE))
+    }
+    names(x = vec) = c("MaxVal","indices")
+    if (is.na(maxRows)){
+      upper_index = round(epsilon*l,0)
+    }else{
+      upper_index = min(round(epsilon*l,0),maxRows)
+    }
+    candidates = vec[1:upper_index,]
+    return(candidates)
+  }else{
+    print("Wrong input data")
+    return(NULL)
+  }
+}
+
 # Function for 2D matrices returning extremal values and its corresponding indices
-max2d = function(mat,epsilon,maximum=TRUE,maxRows=NA){
+max2d = function(mat,epsilon=1.0,maximum=TRUE,maxRows=NA){
   # PARAMETERS:
   # epsilon       relative tolerance level in [0,1].
   #               Zero: consider only maximum values (possibly degenerated)
@@ -259,22 +385,65 @@ coordinates2 = function(X,Y,surface){
 # logistic map
 logMap = function(N,r,x0,skipFirst=TRUE){
   if (N >= 1) {
-    X=rep(0.0,N+1)
-    X[1] = x0
-    for (n in 2:(N+1)){
+    X=rep(0.0,N)
+    if(skipFirst) X[1] = 4*r*x0*(1-x0)
+    else X[1] = x0
+    for (n in 2:N){
       X[n] = 4*r*X[n-1]*(1-X[n-1])
     }
-    if(skipFirst){
-      result = X[-1]
-    }else{
-      result = X[-(N+1)]
-    }
-    return(result)
+    return(X)
   } else {
     cat("invalid number N =",N,"\n")
     return(NULL)
   }
 }
+
+packageManager("inline")
+#### general symmetric map (C extension) ####
+sig = c(N="integer",x0="numeric",r="numeric",alpha="numeric",skipFirst="integer")
+body = "
+#include <math.h>
+
+
+// convert every SEXP object into a c datatype
+double r_ = asReal(r);
+double a_ = asReal(alpha);
+double x0_ = asReal(x0);
+int N_ = asInteger(N);
+int skipFirst_ = asInteger(skipFirst);
+
+
+// Allocate an output vector
+SEXP X = PROTECT(allocVector(REALSXP,N_));
+
+// create an Array pointing to that output vector
+double *X_;
+X_ = REAL(X);
+
+
+//Manipulate the array
+if (skipFirst_)  X_[0] = r_*(1.0 - pow(2.0 * fabs(x0_-0.5),a_));
+if (!skipFirst_) X_[0] = x0_;
+
+int i;
+for ( i=0 ; i<(N_-1) ; i++ ){
+    X_[i+1] = r_*(1.0 - pow(2.0 * fabs(X_[i]-0.5),a_));
+}
+
+UNPROTECT(1);
+//return that array
+return X;
+"
+gensymMap_iter_c <- cfunction(sig = sig,
+                              body = body,
+                              verbose = TRUE,
+                              convention = ".Call",
+                              language = "C")
+#setCMethod(f = "gensymMap_iter_c",
+#           sig = sig,
+#           body = body,
+#           verbose = TRUE)
+
 
 # dynamisches Rauschen (intrinsisches Rauschen)
 # logistische Abbildung mit dynamischem (additiven, betaverteiltem) Rauschen
@@ -299,25 +468,11 @@ logMap_dyn = function(N,a,x0,sigmaRel=0.1){
   return(X[-1])
 }
 
-# logMap = function(N,a,x0,sigma=100){
-#   if (N >= 1) {
-#     X=rep(0.0,N+1)
-#     X[1] = x0
-#     for (n in 2:(N+1)){
-#       X[n] = a*X[n-1]*(1-X[n-1])
-#       X[n]=min(1,max(0,X[n]+sigma*rnorm(1,0,1)))
-#     }
-#     return(X[-1])
-#   } else {
-#     cat("invalid number N =",N,"\n")
-#     return(NULL)
-#   }
-# }
-
 LLik = function(X,Y,sigma){
   return(-sum( 0.5*((Y-X)/sigma)^2 ))
 }
 
+#not a likelihood function
 Lik = function(X,Y,sigma){
   return(-LLik(X = X,
                Y = Y,
@@ -334,46 +489,33 @@ Lik_dyn = function(a,x0,Y,sigmaRel){
   return(Lik)
 }
 
+# general symmetric map
+gensymMap_iter = function(N,x0,r,alpha,skipFirst=TRUE){
+  X = rep(0,N+1)
+  X[1] = x0
+  for (i in 2:(N+1)){
+    X[i]=gensymMap(x=X[i-1],
+                   r=r,
+                   alpha=alpha)
+  }
+  if(skipFirst){
+    result = X[-1]
+  }else{
+    result = X[-(N+1)]
+  }
+  return(result)
+}
 
-# applicable to vectors as input variables
-#Lik = function(a,x0,Y,sigma){
-#  n = length(Y)
-#  X_3D = sapply(1:length(a),
-#                function(i) sapply(1:length(x0),
-#                                   function(i_x0) logMap(N = n,
-#                                                         a = a[i],
-#                                                         x0 = x0[i_x0])),
-#                simplify = "array") #option simplify converts output to array (>>list<< otherwise)
-#  # D = length(dim(X_3D))
-#  # if (D>2){
-#  # print("###### dim > 2 #####")
-#  L = apply(X = X_3D,
-#            MARGIN = 3,
-#            FUN = function(X_2D) apply(X = X_2D,
-#                                       MARGIN = 2,
-#                                       FUN = function(X_1D) exp(LLik(X = X_1D,
-#                                                                     Y = Y,
-#                                                                     sigma = sigma))))
-#  # } else {
-#  #   print("###### dim <= 2 #####")
-#  #   L = apply(X = X_2D,
-#  #             MARGIN = 2,
-#  #             FUN = function(X_1D) exp(LLik(X = X_1D,
-#  #                                           Y = Y,
-#  #                                           sigma = sigma)))
-#  # }
-#  return(L) # 2D first component is x0, second component is a
-#}
-#
 Lik_genSymMap = function(alpha,r,x0,Y,sigma){
   n = length(Y)
-  X = gensymMap_iter_c(N = n,
-                       x0 = x0,
-                       r = r,
-                       alpha = alpha)
-  L = LLik(X = X,
-           Y = Y,
-           sigma = sigma)
+  X = gensymMap_iter(N = n,
+                     x0 = x0,
+                     r = r,
+                     alpha = alpha,
+                     skipFirst = TRUE)
+  L = exp(LLik(X = X,
+               Y = Y,
+               sigma = sigma)/(sqrt(2*pi)*sigma))
   return(L)
 }
 
@@ -457,10 +599,6 @@ simplePlot = function(main="simplePlot",
 
 
 
-#### Funktionsdefinitionen ####
-
-# === deterministische Einschritt-Abbildungen ===
-
 # --- logistische Abbildung ---
 # (0 <= x0 <= 1, 0 <= r <= 1)
 logisticMap = function(x,r){
@@ -538,53 +676,6 @@ gensymMap = function(x,r,alpha){
   return(r*(1-(2*abs(x-0.5))^alpha))
 }
 
-gensymMap_iter = function(N,x0,r,alpha,skipFirst=TRUE){
-  X = rep(0,N+1)
-  X[1] = x0
-  for (i in 2:(N+1)){
-    X[i]=gensymMap(x=X[i-1],
-                   r=r,
-                   alpha=alpha)
-  }
-  if(skipFirst){
-    result = X[-1]
-  }else{
-    result = X[-(N+1)]
-  }
-  return(result)
-}
-packageManager("inline")
-#### general symmetric map (C extension) ####
-gensymMap_iter_c <- cfunction(c(N = "integer", x0 = "numeric", r = "numeric", alpha = "numeric"),'
-#include <math.h>
-
-
-// convert every SEXP object into a c datatype
-double r_ = asReal(r);
-double a_ = asReal(alpha);
-double x0_ = asReal(x0);
-int N_ = asInteger(N);
-
-
-// Allocate an output vector
-SEXP X = PROTECT(allocVector(REALSXP,N_));
-
-// create an Array pointing to that output vector
-double *X_;
-X_ = REAL(X);
-
-
-//Manipulate the array
-int i;
-X_[0] = r_*(1.0 - pow(2.0 * fabs(x0_-0.5),a_));
-for ( i=0 ; i<(N_-1) ; i++ ){
-    X_[i+1] = r_*(1.0 - pow(2.0 * fabs(X_[i]-0.5),a_));
-}
-
-UNPROTECT(1);
-//return that array
-return X;
-')
 
 #### Error-Functions ####
 ## 'error function'
@@ -618,7 +709,7 @@ nLevels = 101  # n > 1
 
 #### discrete logistic map ####
 # Tabelle diskrete logistische Abbildung (bei festem r so schneller)
-#Dlogvals = round(logisticMap((0:(nLevels-1))/(nLevels-1),r=r0)*(nLevels-1))
+# Dlogvals = round(logisticMap((0:(nLevels-1))/(nLevels-1),r=r0)*(nLevels-1))
 # --- Diskrete Funktion
 discreteLogisticMap = function(x,r,m=nLevels){
   #  0 < x <= 1, 0 <= r <= 1
