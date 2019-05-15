@@ -132,24 +132,6 @@ rectFun = function(x,a,b,z){
   return(result)
 }
 
-discreteMap_iter = function(N,x0,mat,skipFirst = TRUE){
-  x0 = valToVec(val = x0,
-                N = dim(mat)[2])
-  if (skipFirst) x0 = mat %*% x0
-  Series = matrix(data = rep(x0,N),
-                  nrow = length(x0),
-                  ncol = N,
-                  byrow = FALSE)
-  for (i in 2:N){
-    Series[,i] = mat %*% Series[,i-1]
-  }
-  result = apply(X = Series,
-                 MARGIN = 2,
-                 FUN = function(colVec){
-                   vecToVal(vec = colVec)
-                 })
-  return(result)
-}
 
 
 
@@ -377,7 +359,7 @@ coordinates2 = function(X,Y,surface){
 }
 
 # logistic map
-logMap = function(N,r,x0,skipFirst=TRUE){
+logMap_iter = function(N,r,x0,skipFirst=TRUE){
   if (N >= 1) {
     X=rep(0.0,N)
     if(skipFirst) X[1] = 4*r*x0*(1-x0)
@@ -463,6 +445,7 @@ logMap_dyn = function(N,a,x0,sigmaRel=0.1){
 }
 
 LLik = function(X,Y,sigma){
+  # strict result = -sum( 0.5*((Y-X)/sigma)^2 ) + length(X)*log(1/(sqrt(2*pi)*sigma))
   return(-sum( 0.5*((Y-X)/sigma)^2 ))
 }
 
@@ -483,21 +466,67 @@ Lik_dyn = function(a,x0,Y,sigmaRel){
   return(Lik)
 }
 
+discr = function(val,N_discr,lower = 0.0,upper = 1.0){
+  dx = (upper-lower)/(N_discr-1)
+  ref = seq(from = lower,
+            to = upper,
+            by = dx)
+  diff = abs(ref - rep(val,N_discr))
+  factor = which( diff == min(diff) )[1] # if value is exactly between two grid points --> condense to left one
+  return((factor-1)*dx)
+}
+
+discreteMap_iter = function(N,x0,mat,skipFirst = TRUE){
+  x0 = valToVec(val = x0,
+                N = dim(mat)[2])
+  if (skipFirst) x0 = mat %*% x0
+  Series = matrix(data = rep(x0,N),
+                  nrow = length(x0),
+                  ncol = N,
+                  byrow = FALSE)
+  for (i in 2:N){
+    Series[,i] = mat %*% Series[,i-1]
+  }
+  result = apply(X = Series,
+                 MARGIN = 2,
+                 FUN = function(colVec){
+                   vecToVal(vec = colVec)
+                 })
+  return(result)
+}
+
+dGensymMap_iter = function(N,alpha,r,x0,N_discr,skipFirst = TRUE,lower = 0.0, upper = 1.0){
+  Series = rep(x0,N)
+  if(skipFirst){
+    Series[1] = gensymMap(x = x0,
+                          r = r,
+                          alpha = alpha)
+  }
+  for(i in 2:N){
+    Series[i] = discr(val = gensymMap(x = Series[i-1],
+                                      r = r,
+                                      alpha = alpha),
+                      N_discr = N_discr,
+                      lower = lower,
+                      upper = upper)
+  }
+  return(Series)
+}
+
 # general symmetric map
 gensymMap_iter = function(N,x0,r,alpha,skipFirst=TRUE){
-  X = rep(0,N+1)
-  X[1] = x0
-  for (i in 2:(N+1)){
-    X[i]=gensymMap(x=X[i-1],
-                   r=r,
-                   alpha=alpha)
-  }
+  X = rep(x0,N)
   if(skipFirst){
-    result = X[-1]
-  }else{
-    result = X[-(N+1)]
+    X[1] = gensymMap(x = x0,
+                     r = r,
+                     alpha = alpha)
   }
-  return(result)
+  for (i in 2:N){
+    X[i]=gensymMap(x = X[i-1],
+                   r = r,
+                   alpha = alpha)
+  }
+  return(X)
 }
 
 Lik_genSymMap = function(alpha,r,x0,Y,sigma){
@@ -592,39 +621,34 @@ simplePlot = function(main="simplePlot",
 }
 
 
-
-# --- logistische Abbildung ---
-# (0 <= x0 <= 1, 0 <= r <= 1)
-logisticMap = function(x,r){
-  #return(r*(1-4*(x-0.5)^2))
-  # r*(1-(1/xmax*(x-xmax))^2) = r*(1-(2*(x-1/2))^2) = r*(1-4*(x-0.5)^2)
-  # = r-r*(4x^2-2*x/2+1/4) = r*4*(x-x^2)= r*4*x*(1-x)
+#### Abbildungen/Maps ####
+logMap = function(x,r){
   return(4*r*x*(1-x))
 }
 
-#### Variante für Testzwecke ####
+#### Variante für Testzwecke
 logisticMap2 = function(x,r){
   return(4*r*(x-x*x))
 }
 
-#### nach Iteration gekappte Variante ####
+#### nach Iteration gekappte Variante
 logisticMapPostcut = function(x,r){
   return(min(1,max(0,4*r*x*(1-x))))
 }
 
-#### vor Iteration gekappte Variante ####
+#### vor Iteration gekappte Variante
 logisticMapPrecut = function(x,r){
   x=min(1,max(0,x))
   return(min(1,max(0,4*r*x*(1-x))))
 }
 
-#### kubische Abbildung ####
+#### kubische Abbildung
 # (0 <= x0 <= 1, 0 <= r <= 1)
 cubeMap = function(x,r){
   return(r*(1-8*abs(x-0.5)^3)) # = r*(1-(2*abs(x-1/2))^3)
 }
 
-#### quartische Abbildung ####
+#### quartische Abbildung
 # (0 <= x0 <= 1, 0 <= r <= 1)
 quartMap = function(x,r){
   return(r*(1-16*(x-0.5)^4))
@@ -639,39 +663,39 @@ quartMap = function(x,r){
 
 }
 
-#### Lorenz-Abbildung (Wurzel) ####
+#### Lorenz-Abbildung (Wurzel)
 # (0 <= x0 <= 1, 0 <= r <= 1)
 lorenzMap = function(x,r){
   return(r*(1-sqrt(abs(x-0.5))*sqrt(2))) # = r*(1-(2*abs(x-1/2))^(1/2))
 }
 ####
 
-#### Kubische Wurzel-Abbildung ####
+#### Kubische Wurzel-Abbildung
 # (0 <= x0 <= 1, 0 <= r <= 1)
 cuberootMap = function(x,r){
   return(r*(1-(2*abs(x-0.5))^(1/3)))
 }
 
-#### Sinus-Abbildung ####
+#### Sinus-Abbildung
 # (0 <= x0 <= 1, 0 <= r <= 1)
 sineMap = function(x,r){
   return(r*sin(pi*x))
 }
 
-#### tent map (Zelt-Abbildung) ####
+#### tent map (Zelt-Abbildung)
 # (0 <= x0 <= 1, 0 <= r <= 1)
 tentMap = function(x,r){
   return(r*(1-2*abs(x-0.5)))
 }
 
-#### general symmetric map (S. Sprott: Chaos and Time-Series Analysis, S. 39) ####
+#### general symmetric map (S. Sprott: Chaos and Time-Series Analysis, S. 39)
 # (0 <= x0 <= 1, 0 <= r <= 1, logisticMap: alpha = 2, lorenzMap: alpha = 1/2 etc. )
 gensymMap = function(x,r,alpha){
   return(r*(1-(2*abs(x-0.5))^alpha))
 }
 
 
-#### Error-Functions ####
+#### Error-Functions
 ## 'error function'
 erf <- function(x) 2 * pnorm(x * sqrt(2)) - 1
 ## (see Abramowitz and Stegun 29.2.29)
@@ -682,12 +706,12 @@ erfinv <- function (x) qnorm((1 + x)/2)/sqrt(2)
 erfcinv <- function (x) qnorm(x/2, lower = FALSE)/sqrt(2)
 
 
-#### Gaussian white chaotic map (S. Sprott: Chaos and Time-Series Analysis, S. 420) ####
+#### Gaussian white chaotic map (S. Sprott: Chaos and Time-Series Analysis, S. 420)
 gaussianWhiteChaoticMap = function(x,r){
   return(r*erfinv(1-2*erf(x/r)))
 }
 
-#### Binary shift map ####
+#### Binary shift map
 binaryShiftMap = function(x,r){
   return((2*r*x)%%1)
 }
@@ -701,7 +725,7 @@ binaryShiftMap = function(x,r){
 # Anzahl Level f?r diskrete Funktionen
 nLevels = 101  # n > 1
 
-#### discrete logistic map ####
+#### discrete logistic map
 # Tabelle diskrete logistische Abbildung (bei festem r so schneller)
 # Dlogvals = round(logisticMap((0:(nLevels-1))/(nLevels-1),r=r0)*(nLevels-1))
 # --- Diskrete Funktion
@@ -714,7 +738,7 @@ discreteLogisticMap = function(x,r,m=nLevels){
 
 
 
-#### discrete random map ####
+#### discrete random map
 # Tabelle diskrete Zufallsfunktion
 #Drvals = pmax(0,ceiling(runif(nLevels)*nLevels)-1)/(nLevels-1) # Levels von 0 bis nLevels-1 jew. zwischen 0 und 1
 Drvals = pmax(0,ceiling(runif(nLevels)*nLevels)-1) # Levels von 0 bis nLevels-1
@@ -728,12 +752,11 @@ discreteRandomMap = function(x,r){
 
 
 
-#### Logit-Normal-Verteilung ####
+#### Logit-Normal-Verteilung
 # Wird parametrisiert durch die Parameter mu und sd der zugrundeliegenden Normalverteilung
 #  F?r die Momente der Logit-Normal-Verteilung gibt es allerdings keine analytische L?sung.
 #  Gesucht w?re ein Funktion, die aus vorgegebenem Mittelwert und SD,
 #  die entsprechenden mu, sd der Normalverteilung berechnet.
-# ----
 rlogitnormal = function(...){
   x = exp(rnorm(...))
   x / (1+x)
@@ -747,9 +770,9 @@ rlogitnormal = function(...){
 
 
 
-#### probabilistische Einschritt-Abbildungen ####
+#### probabilistische Einschritt-Abbildungen
 
-#### allgemeines dynamisches Zustandsrauschen ####
+#### allgemeines dynamisches Zustandsrauschen
 noisyStateMap = function(x,r
                          ,funct  = logisticMap
                          ,rfunct = function(z) rnorm(n=1,mean=z,sd=SD0) ){
@@ -762,13 +785,13 @@ noisyStateMap = function(x,r
 #noisyStateMap(x0,r0,rfunct = function(z) rbeta_MuSDrel(n=1, x=x0, sdRel=SDrel0)) # Bsp. Betaverteilung
 #noisyStateMap(x0,r0,rfunct = rbeta_MuSDrel0) # Bsp. Betaverteilung mit festem sdRel=SDrel0
 
-#### Spezialfall: dynamisches Zustandsrauschen mit Betaverteilung ####
+#### Spezialfall: dynamisches Zustandsrauschen mit Betaverteilung
 noisyStateMap_BetaMuSDrel0 = function(x,r,funct=logisticMap) noisyStateMap(x, r, funct, rfunct=rbeta_MuSDrel0)
 # Examples:
 #noisyStateMap_BetaMuSDrel0(x0,r0)
 #noisyStateMap_BetaMuSDrel0(x0,r=1)
 
-#### allgemeines dynamisches Parameterrauschen ####
+#### allgemeines dynamisches Parameterrauschen
 noisyParmMap = function(x,r
                         ,funct  = logisticMap
                         ,prfunct = function(z) rnorm(n=1,mean=z,sd=SD0) ){
@@ -780,14 +803,14 @@ noisyParmMap = function(x,r
 #noisyParmMap(x0,r0,prfunct = function(z) min(1,max(0,rnorm(n=1,mean=z,sd=1))))
 
 
-#### Spezialfall: dynamisches Parameterrauschen mit Betaverteilung ####
+#### Spezialfall: dynamisches Parameterrauschen mit Betaverteilung
 noisyParmMap_BetaMuSDrel0 = function(x,r,funct=logisticMap) noisyParmMap(x, r, funct, prfunct=rbeta_MuSDrel0)
 # Examples:
 #noisyParmMap_BetaMuSDrel0(x0,r0)
 #noisyParmMap_BetaMuSDrel0(x0,r=1)
 
 
-#### allgemeines dynamisches (Zustands- und Parameter-)Rauschen ####
+#### allgemeines dynamisches (Zustands- und Parameter-)Rauschen
 # (ersetzt noisyStateMap und noisyParmMap)
 noisyMap = function(x,r
                     ,funct  = logisticMap  # definiert deterministische univariate Abbildung
@@ -804,7 +827,7 @@ noisyMap = function(x,r
 #noisyMap(x0,r=r0,funct=tentMap)
 
 
-#### Spezialfall mit gekappter Normalverteilung ####
+#### Spezialfall mit gekappter Normalverteilung
 # (mit vorgegebener SD f?r dynamisches Zustands- und Parameterrauschen)
 noisyMap_NormalCut0 = function(x,r,funct=logisticMap)
   noisyMap(x,r,funct
@@ -815,7 +838,7 @@ noisyMap_NormalCut0 = function(x,r,funct=logisticMap)
 #noisyMap_NormalCut0(x0,r0)
 #noisyMap_NormalCut0(x0,r0,funct=tentMap)
 
-#### Spezialfall mit Betaverteilung ####
+#### Spezialfall mit Betaverteilung
 # (mit vorgegebener SD f?r dynamisches Zustands- und Parameterrauschen)
 noisyMap_BetaMuSDrel0 = function(x,r,funct=logisticMap)
   noisyMap(x,r,funct
@@ -827,9 +850,9 @@ noisyMap_BetaMuSDrel0 = function(x,r,funct=logisticMap)
 #noisyMap_BetaMuSDrel0(x0,r0,funct=tentMap)
 
 
-#### Iteration ####
+#### Iteration
 
-#### einfache Iteration ####
+#### einfache Iteration
 # (auch geeignet f?r dynamische Rauschvarianten)
 iteratedMap = function(x,r,n
                        ,funct=logisticMap ){
@@ -848,7 +871,7 @@ iteratedMap = function(x,r,n
 
 
 
-#### Iteration mit Inputrauschen und abschlie?endem Beobachtungsrauschen (Ausgangsrauschen) ####
+#### Iteration mit Inputrauschen und abschlie?endem Beobachtungsrauschen (Ausgangsrauschen)
 iteratedMap_ioNoise = function( x
                                 ,r
                                 ,n
@@ -869,9 +892,8 @@ iteratedMap_ioNoise = function( x
 #iteratedMap_ioNoise(x0,r0,10,funct=tentMap)
 
 
-####  Zeitreihe ####
 
-#### Zeitreihe ####
+#### Zeitreihe
 # (eindimensionaler, homogener, diskreter hidden Markovprozess)
 oneDimhHMM = function(x,r,n
                       ,funct=logisticMap # function(x,r)
