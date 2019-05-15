@@ -412,13 +412,13 @@ return X;
 "
 gensymMap_iter_c <- cfunction(sig = sig,
                               body = body,
-                              verbose = TRUE,
+                              verbose = FALSE,
                               convention = ".Call",
                               language = "C")
 #setCMethod(f = "gensymMap_iter_c",
 #           sig = sig,
 #           body = body,
-#           verbose = TRUE)
+#           verbose = FALSE)
 
 
 # dynamisches Rauschen (intrinsisches Rauschen)
@@ -444,6 +444,7 @@ logMap_dyn = function(N,a,x0,sigmaRel=0.1){
   return(X[-1])
 }
 
+#### Likelihoods ####
 LLik = function(X,Y,sigma){
   # strict result = -sum( 0.5*((Y-X)/sigma)^2 ) + length(X)*log(1/(sqrt(2*pi)*sigma))
   return(-sum( 0.5*((Y-X)/sigma)^2 ))
@@ -454,6 +455,34 @@ Lik = function(X,Y,sigma){
   return(-LLik(X = X,
                Y = Y,
                sigma = sigma))
+}
+
+Lik_genSymMap = function(alpha,r,x0,Y,sigma,N_discr = NULL){
+  # N_discr only for compatibility reasons
+  n = length(Y)
+  X = gensymMap_iter(N = n,
+                     x0 = x0,
+                     r = r,
+                     alpha = alpha,
+                     skipFirst = TRUE)
+  L = exp(LLik(X = X,
+               Y = Y,
+               sigma = sigma)/(sqrt(2*pi)*sigma))
+  return(L)
+}
+
+Lik_dGensymMap = function(alpha,r,x0,Y,sigma,N_discr){
+  n = length(Y)
+  X = dGensymMap_iter(N = n,
+                      x0 = x0,
+                      r = r,
+                      alpha = alpha,
+                      N_discr = N_discr,
+                      skipFirst = TRUE)
+  L = exp(LLik(X = X,
+               Y = Y,
+               sigma = sigma)/(sqrt(2*pi)*sigma))
+  return(L)
 }
 #Likelihood function for dynamic noise (beta distributed)
 #returns a modell Vector X of dimension Dim(Y)-1
@@ -495,52 +524,48 @@ discreteMap_iter = function(N,x0,mat,skipFirst = TRUE){
   return(result)
 }
 
-dGensymMap_iter = function(N,alpha,r,x0,N_discr,skipFirst = TRUE,lower = 0.0, upper = 1.0){
+dGensymMap_iter = function(N,x0,r,alpha,N_discr,skipFirst = TRUE,lower = 0.0, upper = 1.0){
   Series = rep(x0,N)
   if(skipFirst){
-    Series[1] = gensymMap(x = x0,
-                          r = r,
-                          alpha = alpha)
-  }
-  for(i in 2:N){
-    Series[i] = discr(val = gensymMap(x = Series[i-1],
-                                      r = r,
-                                      alpha = alpha),
+    Series[1] = discr(gensymMap(x = x0,
+                                r = r,
+                                alpha = alpha),
                       N_discr = N_discr,
                       lower = lower,
                       upper = upper)
+  }
+  if(N>1){
+    for(i in 2:N){
+      Series[i] = discr(val = gensymMap(x = Series[i-1],
+                                        r = r,
+                                        alpha = alpha),
+                        N_discr = N_discr,
+                        lower = lower,
+                        upper = upper)
+    }
   }
   return(Series)
 }
 
 # general symmetric map
-gensymMap_iter = function(N,x0,r,alpha,skipFirst=TRUE){
+gensymMap_iter = function(N,x0,r,alpha,N_discr = NULL,skipFirst=TRUE){
+  # N_discr only for compatibility
   X = rep(x0,N)
   if(skipFirst){
     X[1] = gensymMap(x = x0,
                      r = r,
                      alpha = alpha)
   }
-  for (i in 2:N){
-    X[i]=gensymMap(x = X[i-1],
-                   r = r,
-                   alpha = alpha)
+  if(N>1){
+    for (i in 2:N){
+      X[i]=gensymMap(x = X[i-1],
+                     r = r,
+                     alpha = alpha)
+    }
   }
   return(X)
 }
 
-Lik_genSymMap = function(alpha,r,x0,Y,sigma){
-  n = length(Y)
-  X = gensymMap_iter(N = n,
-                     x0 = x0,
-                     r = r,
-                     alpha = alpha,
-                     skipFirst = TRUE)
-  L = exp(LLik(X = X,
-               Y = Y,
-               sigma = sigma)/(sqrt(2*pi)*sigma))
-  return(L)
-}
 
 #shifts every element of a vector >>offset<< times to the right
 shift = function(vec,offset){
@@ -618,6 +643,31 @@ simplePlot = function(main="simplePlot",
            title = title_leg,
            bg = bg_leg)
   }
+}
+
+myGrid = function(xlim,ylim,nx,ny=nx,lty = DASHED,lwd = 1,col = "black"){
+  dx = (xlim[2]-xlim[1])/(nx-1)
+  xticks = seq(from = xlim[1],
+               to = xlim[2],
+               by = dx)
+  dy = (ylim[2]-ylim[1])/(ny-1)
+  yticks = seq(from = ylim[1],
+               to = ylim[2],
+               by = dy)
+  sapply(X = xticks,
+         FUN = function(tick){
+           abline(v = tick,
+                  lwd = lwd,
+                  lty = lty,
+                  col = col)
+         })
+  sapply(X = yticks,
+         FUN = function(tick){
+           abline(h = tick,
+                  lwd = lwd,
+                  lty = lty,
+                  col = col)
+         })
 }
 
 
