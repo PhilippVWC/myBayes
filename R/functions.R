@@ -1,6 +1,16 @@
 #### function library ####
 #### Dr. J.C. Lemm and P.v.W.Crommelin ###
 
+
+
+collapse = function(vec){
+  deltaVec = vec - c(vec[1]+1,vec[1:(length(vec)-1)])
+  indices = which(deltaVec != 0)
+  df = data.frame(values = vec[indices], indices = indices)
+  return(df[order(df$values,
+                  decreasing = TRUE),])
+}
+
 myOpt = function(candidates,fn,maximum = TRUE,maxit=200,bounds){
   MX = apply(X = as.matrix(candidates),
              MARGIN = 1,
@@ -272,7 +282,7 @@ max1d = function(vec,epsilon=1.0,maximum=TRUE,maxRows=NA){
                             decreasing = FALSE,
                             index.return = TRUE))
     }
-    names(x = vec) = c("MaxVal","indices")
+    names(x = vec) = c("value","indices")
     if (is.na(maxRows)){
       upper_index = round(epsilon*l,0)
     }else{
@@ -312,7 +322,7 @@ max2d = function(mat,epsilon=1.0,maximum=TRUE,maxRows=NA){
     x_indices[x_indices == 0] = dimX        #= dimX, because otherwise values within the last row are interpreted to be in the first row
     y_indices = (indices - 0.1) %/% dimX    #-0.1, because otherwise values within the last row are interpreted to be in the next column
     y_indices = y_indices + 1               #= 1, because R indexes start with number 1
-    result = data.frame("MaxVal"=values, "RowIndex"=x_indices, "ColIndex"=y_indices)
+    result = data.frame("value"=values, "RowIndex"=x_indices, "ColIndex"=y_indices)
     nRow = nrow(result)
     if ( !is.na(maxRows) & nRow>maxRows ) {
       print("###########################################################################")
@@ -334,7 +344,7 @@ max2d = function(mat,epsilon=1.0,maximum=TRUE,maxRows=NA){
     }
   } else {
     print("Wrong input data")
-    return(data.frame("MaxVal"=NA, "RowIndex"=NA, "ColIndex"=NA))
+    return(data.frame("value"=NA, "RowIndex"=NA, "ColIndex"=NA))
 
   }
 }
@@ -356,22 +366,6 @@ coordinates2 = function(X,Y,surface){
   X = matrix(rep(X,N_Y),nrow =  N_X)
   Y = c(t(matrix(Y) %*% rep(1,N_X)))
   return(matrix(c(X,Y,Z),ncol=3))
-}
-
-# logistic map
-logMap_iter = function(N,r,x0,skipFirst=TRUE){
-  if (N >= 1) {
-    X=rep(0.0,N)
-    if(skipFirst) X[1] = 4*r*x0*(1-x0)
-    else X[1] = x0
-    for (n in 2:N){
-      X[n] = 4*r*X[n-1]*(1-X[n-1])
-    }
-    return(X)
-  } else {
-    cat("invalid number N =",N,"\n")
-    return(NULL)
-  }
 }
 
 packageManager("inline")
@@ -457,13 +451,14 @@ Lik = function(X,Y,sigma){
                sigma = sigma))
 }
 
-Lik_genSymMap = function(alpha,r,x0,Y,sigma,N_discr = NULL){
+Lik_gensymMap = function(alpha,r,x0,Y,sigma,N_discr = NULL){
   # N_discr only for compatibility reasons
   n = length(Y)
   X = gensymMap_iter(N = n,
                      x0 = x0,
                      r = r,
                      alpha = alpha,
+                     N_discr = N_discr,
                      skipFirst = TRUE)
   L = exp(LLik(X = X,
                Y = Y,
@@ -524,47 +519,75 @@ discreteMap_iter = function(N,x0,mat,skipFirst = TRUE){
   return(result)
 }
 
-dGensymMap_iter = function(N,x0,r,alpha,N_discr,skipFirst = TRUE,lower = 0.0, upper = 1.0){
-  Series = rep(x0,N)
-  if(skipFirst){
-    Series[1] = discr(gensymMap(x = x0,
-                                r = r,
-                                alpha = alpha),
-                      N_discr = N_discr,
-                      lower = lower,
-                      upper = upper)
-  }
-  if(N>1){
-    for(i in 2:N){
-      Series[i] = discr(val = gensymMap(x = Series[i-1],
-                                        r = r,
-                                        alpha = alpha),
-                        N_discr = N_discr,
-                        lower = lower,
-                        upper = upper)
-    }
-  }
-  return(Series)
-}
+#dGensymMap_iter = function(N,x0,r,alpha,N_discr,skipFirst = TRUE,lower = 0.0, upper = 1.0){
+#  Series = rep(x0,N)
+#  if(skipFirst){
+#    Series[1] = discr(gensymMap(x = x0,
+#                                r = r,
+#                                alpha = alpha),
+#                      N_discr = N_discr,
+#                      lower = lower,
+#                      upper = upper)
+#  }
+#  if(N>1){
+#    for(i in 2:N){
+#      Series[i] = discr(val = gensymMap(x = Series[i-1],
+#                                        r = r,
+#                                        alpha = alpha),
+#                        N_discr = N_discr,
+#                        lower = lower,
+#                        upper = upper)
+#    }
+#  }
+#  return(Series)
+#}
 
 # general symmetric map
 gensymMap_iter = function(N,x0,r,alpha,N_discr = NULL,skipFirst=TRUE){
-  # N_discr only for compatibility
   X = rep(x0,N)
   if(skipFirst){
-    X[1] = gensymMap(x = x0,
-                     r = r,
-                     alpha = alpha)
+    X[1] = if(!is.null(N_discr)){
+      round(gensymMap(x = x0,
+                      r = r,
+                      alpha = alpha)*N_discr)/N_discr
+    }else{
+      gensymMap(x = x0,
+                r = r,
+                alpha = alpha)
+    }
   }
   if(N>1){
-    for (i in 2:N){
-      X[i]=gensymMap(x = X[i-1],
-                     r = r,
-                     alpha = alpha)
+    if(!is.null(N_discr)){
+      for (i in 2:N) X[i] = round(gensymMap(x = X[i-1],
+                                            r = r,
+                                            alpha = alpha)*N_discr)/N_discr
+    }else{
+      for (i in 2:N) X[i] = gensymMap(x = X[i-1],
+                                      r = r,
+                                      alpha = alpha)
     }
   }
   return(X)
 }
+
+
+
+# logistic map
+logMap_iter = function(N,r,x0,skipFirst=TRUE){
+  if (N >= 1) {
+    X=rep(0.0,N)
+    if(skipFirst) X[1] = 4*r*x0*(1-x0)
+    else X[1] = x0
+    for (n in 2:N){
+      X[n] = 4*r*X[n-1]*(1-X[n-1])
+    }
+    return(X)
+  } else {
+    cat("invalid number N =",N,"\n")
+    return(NULL)
+  }
+}
+
 
 
 #shifts every element of a vector >>offset<< times to the right
