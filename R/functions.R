@@ -1,8 +1,12 @@
 #### function library ####
 #### Dr. J.C. Lemm and P.v.W.Crommelin ###
 
-
-
+#### Rcpp test ####
+Rcpp::cppFunction('int add2(int x, int y, int z) {
+  int sum = x + y + z;
+            return sum;
+            }')
+###
 collapse = function(vec){
   deltaVec = vec - c(vec[1]+1,vec[1:(length(vec)-1)])
   indices = which(deltaVec != 0)
@@ -296,7 +300,9 @@ max1d = function(vec,epsilon=1.0,maximum=TRUE,maxRows=NA){
   }
 }
 
+
 # Function for 2D matrices returning extremal values and its corresponding indices
+#' @export
 max2d = function(mat,epsilon=1.0,maximum=TRUE,maxRows=NA){
   # PARAMETERS:
   # epsilon       relative tolerance level in [0,1].
@@ -368,11 +374,12 @@ coordinates2 = function(X,Y,surface){
   return(matrix(c(X,Y,Z),ncol=3))
 }
 
-packageManager("inline")
+#packageManager("inline")
 #### general symmetric map (C extension) ####
 sig = c(N="integer",x0="numeric",r="numeric",alpha="numeric",skipFirst="integer")
 body = "
 #include <math.h>
+#include <Rinternals.h>
 
 
 // convert every SEXP object into a c datatype
@@ -404,7 +411,7 @@ UNPROTECT(1);
 //return that array
 return X;
 "
-gensymMap_iter_c <- cfunction(sig = sig,
+gensymMap_iter_c =  inline::cfunction(sig = sig,
                               body = body,
                               verbose = FALSE,
                               convention = ".Call",
@@ -414,7 +421,8 @@ gensymMap_iter_c <- cfunction(sig = sig,
 #           body = body,
 #           verbose = FALSE)
 
-
+#test = inline::cfunction(sig = c(x="integer"),
+#                         body = 'return(x);')
 # dynamisches Rauschen (intrinsisches Rauschen)
 # logistische Abbildung mit dynamischem (additiven, betaverteiltem) Rauschen
 # (0<x0<1, 0<a<4, 0 < sig)
