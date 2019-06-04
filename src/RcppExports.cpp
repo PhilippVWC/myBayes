@@ -5,20 +5,39 @@
 
 using namespace Rcpp;
 
-// timesTwo
-NumericVector timesTwo(NumericVector x);
-RcppExport SEXP _myBayes_timesTwo(SEXP xSEXP) {
+// gensymMap_cpp
+double gensymMap_cpp(double x, double r, double alpha);
+RcppExport SEXP _myBayes_gensymMap_cpp(SEXP xSEXP, SEXP rSEXP, SEXP alphaSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< NumericVector >::type x(xSEXP);
-    rcpp_result_gen = Rcpp::wrap(timesTwo(x));
+    Rcpp::traits::input_parameter< double >::type x(xSEXP);
+    Rcpp::traits::input_parameter< double >::type r(rSEXP);
+    Rcpp::traits::input_parameter< double >::type alpha(alphaSEXP);
+    rcpp_result_gen = Rcpp::wrap(gensymMap_cpp(x, r, alpha));
+    return rcpp_result_gen;
+END_RCPP
+}
+// gsm_iter_cpp
+NumericVector gsm_iter_cpp(int N, double x0, double r, double alpha, bool N_discr, bool skipFirst);
+RcppExport SEXP _myBayes_gsm_iter_cpp(SEXP NSEXP, SEXP x0SEXP, SEXP rSEXP, SEXP alphaSEXP, SEXP N_discrSEXP, SEXP skipFirstSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< int >::type N(NSEXP);
+    Rcpp::traits::input_parameter< double >::type x0(x0SEXP);
+    Rcpp::traits::input_parameter< double >::type r(rSEXP);
+    Rcpp::traits::input_parameter< double >::type alpha(alphaSEXP);
+    Rcpp::traits::input_parameter< bool >::type N_discr(N_discrSEXP);
+    Rcpp::traits::input_parameter< bool >::type skipFirst(skipFirstSEXP);
+    rcpp_result_gen = Rcpp::wrap(gsm_iter_cpp(N, x0, r, alpha, N_discr, skipFirst));
     return rcpp_result_gen;
 END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_myBayes_timesTwo", (DL_FUNC) &_myBayes_timesTwo, 1},
+    {"_myBayes_gensymMap_cpp", (DL_FUNC) &_myBayes_gensymMap_cpp, 3},
+    {"_myBayes_gsm_iter_cpp", (DL_FUNC) &_myBayes_gsm_iter_cpp, 6},
     {NULL, NULL, 0}
 };
 
