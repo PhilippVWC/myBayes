@@ -5,16 +5,16 @@
 
 using namespace Rcpp;
 
-// gensymMap_cpp
-double gensymMap_cpp(double x, double r, double alpha);
-RcppExport SEXP _myBayes_gensymMap_cpp(SEXP xSEXP, SEXP rSEXP, SEXP alphaSEXP) {
+// gsm_cpp
+double gsm_cpp(double x, double r, double alpha);
+RcppExport SEXP _myBayes_gsm_cpp(SEXP xSEXP, SEXP rSEXP, SEXP alphaSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< double >::type x(xSEXP);
     Rcpp::traits::input_parameter< double >::type r(rSEXP);
     Rcpp::traits::input_parameter< double >::type alpha(alphaSEXP);
-    rcpp_result_gen = Rcpp::wrap(gensymMap_cpp(x, r, alpha));
+    rcpp_result_gen = Rcpp::wrap(gsm_cpp(x, r, alpha));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -34,10 +34,27 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// Lik_gsm_cpp
+double Lik_gsm_cpp(double alpha, double r, double x0, NumericVector Y, double sigma, int N_discr);
+RcppExport SEXP _myBayes_Lik_gsm_cpp(SEXP alphaSEXP, SEXP rSEXP, SEXP x0SEXP, SEXP YSEXP, SEXP sigmaSEXP, SEXP N_discrSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< double >::type alpha(alphaSEXP);
+    Rcpp::traits::input_parameter< double >::type r(rSEXP);
+    Rcpp::traits::input_parameter< double >::type x0(x0SEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type Y(YSEXP);
+    Rcpp::traits::input_parameter< double >::type sigma(sigmaSEXP);
+    Rcpp::traits::input_parameter< int >::type N_discr(N_discrSEXP);
+    rcpp_result_gen = Rcpp::wrap(Lik_gsm_cpp(alpha, r, x0, Y, sigma, N_discr));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_myBayes_gensymMap_cpp", (DL_FUNC) &_myBayes_gensymMap_cpp, 3},
+    {"_myBayes_gsm_cpp", (DL_FUNC) &_myBayes_gsm_cpp, 3},
     {"_myBayes_gsm_iter_cpp", (DL_FUNC) &_myBayes_gsm_iter_cpp, 6},
+    {"_myBayes_Lik_gsm_cpp", (DL_FUNC) &_myBayes_Lik_gsm_cpp, 6},
     {NULL, NULL, 0}
 };
 

@@ -15,7 +15,6 @@ collapse = function(vec){
   return(df[order(df$values,
                   decreasing = TRUE),])
 }
-
 #' @export
 myOpt = function(candidates,fn,maximum = TRUE,maxit=200,bounds){
   MX = apply(X = as.matrix(candidates),
@@ -481,7 +480,7 @@ Lik = function(X,Y,sigma){
 }
 
 #' @export
-Lik_gensymMap = function(alpha,r,x0,Y,sigma,N_discr = NULL){
+Lik_gensymMap = function(alpha,r,x0,Y,sigma,N_discr = 0){
   # N_discr only for compatibility reasons
   n = length(Y)
   X = gensymMap_iter(N = n,
@@ -578,10 +577,10 @@ discreteMap_iter = function(N,x0,mat,skipFirst = TRUE){
 
 # general symmetric map
 #' @export
-gensymMap_iter = function(N,x0,r,alpha,N_discr = NULL,skipFirst=TRUE){
+gensymMap_iter = function(N,x0,r,alpha,N_discr = 0,skipFirst=TRUE){
   X = rep(x0,N)
   if(skipFirst){
-    X[1] = if(!is.null(N_discr)){
+    X[1] = if(N_discr != 0){
       round(gensymMap(x = x0,
                       r = r,
                       alpha = alpha)*N_discr)/N_discr
@@ -592,7 +591,7 @@ gensymMap_iter = function(N,x0,r,alpha,N_discr = NULL,skipFirst=TRUE){
     }
   }
   if(N>1){
-    if(!is.null(N_discr)){
+    if(N_discr != 0){
       for (i in 2:N) X[i] = round(gensymMap(x = X[i-1],
                                             r = r,
                                             alpha = alpha)*N_discr)/N_discr

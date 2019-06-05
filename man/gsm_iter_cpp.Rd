@@ -20,10 +20,13 @@ gsm_iter_cpp(N, x0, r, alpha, N_discr, skipFirst)
 \item{skipFirst}{Boolean - If set to FALSE, the resulting time series contains the initial value x0}
 }
 \value{
-vector of doubles - the resulting time series
+vector of type double - the resulting time series
 }
 \description{
 Create time series produced by general symmetric map
+}
+\details{
+This routine is implemented in C++
 }
 \author{
 J.C. Lemm, P. v.W. Crommelin
