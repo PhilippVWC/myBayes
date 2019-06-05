@@ -2,7 +2,6 @@
 # Generator token: 10BE3573-1514-4C36-9D1C-5A225CD40393
 
 #' @title General symmetric map
-#' @name gensymMap_cpp
 #' @description a generalization of a one dimensional map, which incorporates (among others) the lorenz-, logistic and cubeMap
 #' @param x input value for one iteration
 #' @param r control parameter
@@ -18,6 +17,16 @@ gensymMap_cpp <- function(x, r, alpha) {
     .Call(`_myBayes_gensymMap_cpp`, x, r, alpha)
 }
 
+#' @title Time series creation
+#' @description Create time series produced by general symmetric map
+#' @param N integer - Number of iterations
+#' @param x0 double - starting value
+#' @param r double - controll parameter
+#' @param alpha double - exponent of general symmetric map
+#' @param N_discr integer - controlls discretization of state space (zero corresponds to continuous case)
+#' @param skipFirst Boolean - If set to FALSE, the resulting time series contains the initial value x0
+#' @return vector of doubles - the resulting time series
+#' @author J.C. Lemm, P. v.W. Crommelin
 #' @export
 gsm_iter_cpp <- function(N, x0, r, alpha, N_discr, skipFirst) {
     .Call(`_myBayes_gsm_iter_cpp`, N, x0, r, alpha, N_discr, skipFirst)

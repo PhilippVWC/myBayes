@@ -19,7 +19,7 @@ BEGIN_RCPP
 END_RCPP
 }
 // gsm_iter_cpp
-NumericVector gsm_iter_cpp(int N, double x0, double r, double alpha, bool N_discr, bool skipFirst);
+NumericVector gsm_iter_cpp(int N, double x0, double r, double alpha, int N_discr, bool skipFirst);
 RcppExport SEXP _myBayes_gsm_iter_cpp(SEXP NSEXP, SEXP x0SEXP, SEXP rSEXP, SEXP alphaSEXP, SEXP N_discrSEXP, SEXP skipFirstSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
@@ -28,7 +28,7 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< double >::type x0(x0SEXP);
     Rcpp::traits::input_parameter< double >::type r(rSEXP);
     Rcpp::traits::input_parameter< double >::type alpha(alphaSEXP);
-    Rcpp::traits::input_parameter< bool >::type N_discr(N_discrSEXP);
+    Rcpp::traits::input_parameter< int >::type N_discr(N_discrSEXP);
     Rcpp::traits::input_parameter< bool >::type skipFirst(skipFirstSEXP);
     rcpp_result_gen = Rcpp::wrap(gsm_iter_cpp(N, x0, r, alpha, N_discr, skipFirst));
     return rcpp_result_gen;
