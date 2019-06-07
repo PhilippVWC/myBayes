@@ -76,8 +76,3 @@ double Lik_gsm_cpp(double alpha, double r, double x0, NumericVector Y, double si
   double L = pow(2.0*PI*pow(sigma,2),-0.5*n)*exp(-0.5*sum/pow(sigma,2.0));
   return(L);
 }
-
-
-/*** R
-print("cpp code scanned")
-*/

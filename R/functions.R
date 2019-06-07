@@ -1,12 +1,6 @@
 #### function library ####
 #### Dr. J.C. Lemm and P.v.W.Crommelin ###
 
-#### Rcpp test ####
-Rcpp::cppFunction('int add2(int x, int y, int z) {
-  int sum = x + y + z;
-            return sum;
-            }')
-###
 #' @export
 collapse = function(vec){
   deltaVec = vec - c(vec[1]+1,vec[1:(length(vec)-1)])
@@ -15,6 +9,7 @@ collapse = function(vec){
   return(df[order(df$values,
                   decreasing = TRUE),])
 }
+
 #' @export
 myOpt = function(candidates,fn,maximum = TRUE,maxit=200,bounds){
   MX = apply(X = as.matrix(candidates),
