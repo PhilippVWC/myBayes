@@ -1,5 +1,5 @@
+# Function for 2D matrices returning extrema and its corresponding indices
 
-# Function for 2D matrices returning extremal values and its corresponding indices
 #' @export
 max2d = function(mat,epsilon=1.0,maximum=TRUE,maxRows=NA){
   # PARAMETERS:

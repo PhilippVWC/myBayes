@@ -1,5 +1,6 @@
-#### general symmetric map (S. Sprott: Chaos and Time-Series Analysis, S. 39)
+# general symmetric map (S. Sprott: Chaos and Time-Series Analysis, S. 39)
 # (0 <= x0 <= 1, 0 <= r <= 1, logisticMap: alpha = 2, lorenzMap: alpha = 1/2 etc. )
+
 #' @title General symmetric map
 #' @description a generalization of a one dimensional map, which incorporates (among others) the lorenz-, logistic and cubeMap
 #' @param x input value for one iteration

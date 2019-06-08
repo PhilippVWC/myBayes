@@ -1,4 +1,5 @@
-# general symmetric map
+# general symmetric map iteration and time series generation
+
 #' @export
 gensymMap_iter = function(N,x0,r,alpha,N_discr = 0,skipFirst=TRUE){
   X = rep(x0,N)

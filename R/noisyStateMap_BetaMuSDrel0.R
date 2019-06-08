@@ -1,4 +1,5 @@
-#### Spezialfall: dynamisches Zustandsrauschen mit Betaverteilung
+# Spezialfall: dynamisches Zustandsrauschen mit Betaverteilung
+
 #' @export
 noisyStateMap_BetaMuSDrel0 = function(x,r,funct=logisticMap) noisyStateMap(x, r, funct, rfunct=rbeta_MuSDrel0)
 # Examples:

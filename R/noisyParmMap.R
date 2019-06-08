@@ -1,4 +1,5 @@
-#### allgemeines dynamisches Parameterrauschen
+# allgemeines dynamisches Parameterrauschen
+
 #' @export
 noisyParmMap = function(x,r
                         ,funct  = logisticMap

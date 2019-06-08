@@ -1,7 +1,8 @@
-
-# Takes X and Y coordinates and creates a grid in the form of a vector
-# X and Y are both 1D, surface is 2D
-# output is a matrix with 3 columns containing the coordinates X,Y,Z as column vectors
+#' @title Generate coordinates
+#' @param X coordinates and creates a grid in the form of a vector
+#' @param X coordinates and creates a grid in the form of a vector
+#' @description  X and Y are both 1D, surface is 2D
+#' @return output is a matrix with 3 columns containing the coordinates X,Y,Z as column vectors
 #' @export
 coordinates = function(X,Y,surface){
   N_X = length(X)

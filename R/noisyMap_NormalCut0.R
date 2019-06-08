@@ -1,5 +1,6 @@
-#### Spezialfall mit gekappter Normalverteilung
-# (mit vorgegebener SD f?r dynamisches Zustands- und Parameterrauschen)
+# Spezialfall mit gekappter Normalverteilung
+# (mit vorgegebener SD fuer dynamisches Zustands- und Parameterrauschen)
+
 #' @export
 noisyMap_NormalCut0 = function(x,r,funct=logisticMap)
   noisyMap(x,r,funct

@@ -1,4 +1,5 @@
-#### Iteration mit Inputrauschen und abschlie?endem Beobachtungsrauschen (Ausgangsrauschen)
+#### Iteration mit Inputrauschen und abschliessendem Beobachtungsrauschen (Ausgangsrauschen)
+
 #' @export
 iteratedMap_ioNoise = function( x
                                 ,r
@@ -10,6 +11,7 @@ iteratedMap_ioNoise = function( x
   #  return(rfunct(funct(x,r)))
   return(orfunct(iteratedMap(irfunct(x),r,n,funct)))
 }
+
 # Examples:
 #iteratedMap_ioNoise(x0,r0,1)
 #iteratedMap_ioNoise(x0,r0,1,irfunct=function(u) min(1,max(0,rnorm(n=1,mean=u,sd=0.1))))

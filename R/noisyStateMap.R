@@ -1,5 +1,6 @@
-#### probabilistische Einschritt-Abbildungen
-#### allgemeines dynamisches Zustandsrauschen
+# probabilistische Einschritt-Abbildungen
+# allgemeines dynamisches Zustandsrauschen
+
 #' @export
 noisyStateMap = function(x,r
                          ,funct  = logisticMap

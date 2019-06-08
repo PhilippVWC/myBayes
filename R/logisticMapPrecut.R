@@ -1,4 +1,5 @@
-#### vor Iteration gekappte Variante
+# vor Iteration gekappte Variante
+
 #' @export
 logisticMapPrecut = function(x,r){
   x=min(1,max(0,x))

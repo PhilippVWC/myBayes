@@ -1,4 +1,4 @@
-# logistic map
+# logistic map iteration - time series generation
 #' @export
 logMap_iter = function(N,r,x0,skipFirst=TRUE){
   if (N >= 1) {

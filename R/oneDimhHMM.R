@@ -1,5 +1,6 @@
-#### Zeitreihe
+# Zeitreihe
 # (eindimensionaler, homogener, diskreter hidden Markovprozess)
+
 #' @export
 oneDimhHMM = function(x,r,n
                       ,funct=logisticMap # function(x,r)

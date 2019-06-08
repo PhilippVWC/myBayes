@@ -1,5 +1,6 @@
-#### einfache Iteration
-# (auch geeignet f?r dynamische Rauschvarianten)
+# einfache Iteration
+# (auch geeignet fuer dynamische Rauschvarianten)
+
 #' @export
 iteratedMap = function(x,r,n
                        ,funct=logisticMap ){
@@ -10,6 +11,7 @@ iteratedMap = function(x,r,n
   }
   return(x)
 }
+
 # Examples:
 #iteratedMap(x0, r0, 2)
 #iteratedMap(x0, r0, 2, funct = logisticMap)

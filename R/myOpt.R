@@ -1,4 +1,3 @@
-
 #' @export
 myOpt = function(candidates,fn,maximum = TRUE,maxit=200,bounds){
   MX = apply(X = as.matrix(candidates),
@@ -87,8 +86,3 @@ myOpt = function(candidates,fn,maximum = TRUE,maxit=200,bounds){
   MX_df = MX_df[!(MX_df$method == "invalid"),] # remove non informative rows
   return(MX_df)
 }
-
-
-
-
-:w

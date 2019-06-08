@@ -1,5 +1,6 @@
 #### allgemeines dynamisches (Zustands- und Parameter-)Rauschen
 # (ersetzt noisyStateMap und noisyParmMap)
+
 #' @export
 noisyMap = function(x,r
                     ,funct  = logisticMap  # definiert deterministische univariate Abbildung

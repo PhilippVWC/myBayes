@@ -1,5 +1,6 @@
 #### Spezialfall mit Betaverteilung
 # (mit vorgegebener SD f?r dynamisches Zustands- und Parameterrauschen)
+
 #' @export
 noisyMap_BetaMuSDrel0 = function(x,r,funct=logisticMap)
   noisyMap(x,r,funct
