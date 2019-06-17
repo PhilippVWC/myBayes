@@ -28,6 +28,31 @@ Create time series produced by general symmetric map
 \details{
 This routine is implemented in C++
 }
+\examples{
+//DEFINITION
+NumericVector gsm_iter_cpp(int N, double x0, double r, double alpha, int N_discr,bool skipFirst){
+  Rcpp::NumericVector X(N);
+  if(skipFirst){
+    if(N_discr == 0){
+      X[0] = gsm_cpp(x0,r,alpha);
+    }else{
+      X[0] = round(gsm_cpp(x0,r,alpha)*N_discr)/N_discr;
+    }
+  }
+  if(N>1){
+    if(N_discr == 0){
+      for(int i = 1; i<N ; i++){
+        X[i] = gsm_cpp(X[i-1],r,alpha);
+      }
+    }else{
+      for(int i = 1; i<N ; i++){
+        X[i] = round(gsm_cpp(X[i-1],r,alpha)*N_discr)/N_discr;
+      }
+    }
+  }
+  return(X);
+}
+}
 \author{
 J.C. Lemm, P. v.W. Crommelin
 }

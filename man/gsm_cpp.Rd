@@ -22,6 +22,12 @@ a generalization of a one dimensional map, which incorporates (among others) the
 \details{
 This routine is implemented in C++
 }
+\examples{
+//DEFINITION
+double gsm_cpp(double x, double r, double alpha){
+  return(r*(1-pow(2*abs(x-0.5),alpha)));
+}
+}
 \references{
 S. Sprott, Chaos and Time-series analysis
 }

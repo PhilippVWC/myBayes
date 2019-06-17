@@ -1,7 +1,7 @@
 #include <Rcpp.h>
 using namespace Rcpp;
 
-//' @title General symmetric map
+//' @title general symmetric map
 //' @description a generalization of a one dimensional map, which incorporates (among others) the lorenz-, logistic and cubeMap
 //' @param x input value for one iteration
 //' @param r control parameter
@@ -10,6 +10,11 @@ using namespace Rcpp;
 //' @return The result of one single iteration/
 //' @author J.C. Lemm, P.v.W. Crommelin
 //' @references S. Sprott, Chaos and Time-series analysis
+//' @examples
+//' //DEFINITION
+//' double gsm_cpp(double x, double r, double alpha){
+//'   return(r*(1-pow(2*abs(x-0.5),alpha)));
+//' }
 //' @export
 // [[Rcpp::export]]
 double gsm_cpp(double x, double r, double alpha){
@@ -27,6 +32,30 @@ double gsm_cpp(double x, double r, double alpha){
 //' @details This routine is implemented in C++
 //' @return vector of type double - the resulting time series
 //' @author J.C. Lemm, P. v.W. Crommelin
+//' @examples
+//' //DEFINITION
+//' NumericVector gsm_iter_cpp(int N, double x0, double r, double alpha, int N_discr,bool skipFirst){
+//'   Rcpp::NumericVector X(N);
+//'   if(skipFirst){
+//'     if(N_discr == 0){
+//'       X[0] = gsm_cpp(x0,r,alpha);
+//'     }else{
+//'       X[0] = round(gsm_cpp(x0,r,alpha)*N_discr)/N_discr;
+//'     }
+//'   }
+//'   if(N>1){
+//'     if(N_discr == 0){
+//'       for(int i = 1; i<N ; i++){
+//'         X[i] = gsm_cpp(X[i-1],r,alpha);
+//'       }
+//'     }else{
+//'       for(int i = 1; i<N ; i++){
+//'         X[i] = round(gsm_cpp(X[i-1],r,alpha)*N_discr)/N_discr;
+//'       }
+//'     }
+//'   }
+//'   return(X);
+//' }
 //' @export
 // [[Rcpp::export]]
 NumericVector gsm_iter_cpp(int N, double x0, double r, double alpha, int N_discr,bool skipFirst){
@@ -63,6 +92,19 @@ NumericVector gsm_iter_cpp(int N, double x0, double r, double alpha, int N_discr
 //' @details This routine is implemented in C++
 //' @author J.C. Lemm, P. v.W. Crommelin
 //' @references S. Sprott, Chaos and Time-series analysis
+//' @examples
+//' //DEFINITION:
+//' double Lik_gsm_cpp(double alpha, double r, double x0, NumericVector Y, double sigma, int N_discr){
+//'   int n = Y.size();
+//'   bool skipFirst = true;
+//'   Rcpp::NumericVector X = gsm_iter_cpp(n,x0,r,alpha,N_discr,skipFirst);
+//'   double sum = 0;
+//'   for(int i = 0; i<n ; i++){
+//'     sum += pow(Y[i]-X[i],2.0);
+//'   }
+//'   double L = pow(2.0*PI*pow(sigma,2),-0.5*n)*exp(-0.5*sum/pow(sigma,2.0));
+//'   return(L);
+//' }
 //' @export
 // [[Rcpp::export]]
 double Lik_gsm_cpp(double alpha, double r, double x0, NumericVector Y, double sigma, int N_discr){
