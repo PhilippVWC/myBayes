@@ -4,7 +4,7 @@
 \alias{gsm_iter_cpp}
 \title{Time series creation}
 \usage{
-gsm_iter_cpp(N, x0, r, alpha, N_discr, skipFirst)
+gsm_iter_cpp(N, x0, r, alpha, N_discr, skipFirst, method)
 }
 \arguments{
 \item{N}{integer - Number of iterations}

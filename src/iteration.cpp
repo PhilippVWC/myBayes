@@ -93,7 +93,7 @@ Rcpp::NumericMatrix getMat(double r, double alpha, int N_discr){
       if(diff<=min_diff){
         min_diff = diff;
         index[j] = i;
-        }
+      }
     }
   }
   Rcpp::NumericMatrix A(N_discr,N_discr);
@@ -112,11 +112,13 @@ Rcpp::NumericMatrix getMat(double r, double alpha, int N_discr){
 }
 
 // private routine
-Rcpp::NumericVector valToVec_cpp(double val, int N_discr){
+Rcpp::NumericVector valToVec_cpp(double val, int N_discr, Rcpp::NumericVector domain){
   Rcpp::NumericVector gridDist(N_discr);
-  double dx = 1.0/(N_discr-1.0);
+  double lower = domain[0];
+  double upper = domain[1];
+  double dx = (upper - lower)/(N_discr-1.0);
   for (int i=0; i<N_discr ; i++){
-    gridDist[i] = abs(val-(i*dx));
+    gridDist[i] = abs(val-(i*dx+lower));
   }
   double min_gridDist = min_cpp(gridDist);
   int index = 0;
@@ -138,7 +140,7 @@ Rcpp::NumericVector dotProd(Rcpp::NumericMatrix A,Rcpp::NumericVector x){
   if(m==x.size()){
     for (int i=0; i<n ; i++){
       for (int j=0; j<m ; j++){
-       b[i] += A(i,j)*x[j];
+        b[i] += A(i,j)*x[j];
       }
     }
   }
@@ -160,17 +162,49 @@ double innerProd(Rcpp::NumericVector a,Rcpp::NumericVector b){
 }
 
 // private routine
-//' @title project index vector onto grid
-double vecToVal_cpp(Rcpp::NumericVector x){
+double vecToVal_cpp(Rcpp::NumericVector x,Rcpp::NumericVector domain){
   int n = x.size();
-  double dx = 1.0/(n-1.0);
+  double dx = (domain[1]-domain[0])/(n-1.0);
   double result = 0;
   for (int i=0 ; i<n ; i++){
-    result += x[i]*(i*dx);
+    result += x[i]*(i*dx+domain[0]);
   }
   return(result);
 }
 
+//' @title discretize a real value
+//' @description this routine discretizes a value corresponding to the desired method
+//' @param val double - real value to be discretized
+//' @param N_discr integer - desired discretization
+//' @param domain vector of double - vector with two components containing the domain bounds
+//' @param method integer - discretize with 1...round routine, or 2...custom method
+//' @details This routine is implemented in C++
+//' @return double - discretized value
+//' @author J.C. Lemm, P. v.W. Crommelin
+//' @examples
+//' //DEFINITION
+//' double discretize_cpp(double val,  int N_discr, Rcpp::NumericVector domain, int method){
+//'   double lower = domain[0];
+//'   double upper = domain[1];
+//'   if(method == 1){
+//'     N_discr--;
+//'     return(round(val*N_discr)/N_discr);
+//'   }else{
+//'     return(vecToVal_cpp(valToVec_cpp(val,N_discr,domain),domain));
+//'   }
+//' }
+//' @export
+// [[Rcpp::export]]
+double discretize_cpp(double val,  int N_discr, Rcpp::NumericVector domain, int method){
+  double lower = domain[0];
+  double upper = domain[1];
+  if(method == 1){
+    N_discr--;
+    return(round(val*N_discr)/N_discr);
+  }else{
+    return(vecToVal_cpp(valToVec_cpp(val,N_discr,domain),domain));
+  }
+}
 
 //' @title Time series creation with discretized output
 //' @description Create time series produced by discrete model of the general symmetric map
@@ -206,16 +240,19 @@ double vecToVal_cpp(Rcpp::NumericVector x){
 Rcpp::NumericVector Dgsm_iter_cpp(int N, double x0, double r, double alpha, int N_discr, bool skipFirst){
   Rcpp::NumericMatrix A = getMat(r,alpha,N_discr);
   //create vector from starting value
-  Rcpp::NumericVector x = valToVec_cpp(x0,N_discr);
+  Rcpp::NumericVector domain(2);
+  domain[0] = 0;
+  domain[1] = 1;
+  Rcpp::NumericVector x = valToVec_cpp(x0,N_discr,domain);
   Rcpp::NumericVector Series(N);
   //initialization
   if(skipFirst){
     x = dotProd(A,x);
   }
-  Series[0] = vecToVal_cpp(x);
+  Series[0] = vecToVal_cpp(x,domain);
   for(int i=1 ; i<N ; i++){
     x = dotProd(A,x);
-    Series[i] = vecToVal_cpp(x);
+    Series[i] = vecToVal_cpp(x,domain);
   }
   return(Series);
 }
@@ -258,28 +295,32 @@ Rcpp::NumericVector Dgsm_iter_cpp(int N, double x0, double r, double alpha, int 
 //' }
 //' @export
 // [[Rcpp::export]]
-NumericVector gsm_iter_cpp(int N, double x0, double r, double alpha, int N_discr,bool skipFirst){
-  N_discr--; //Decrement because the rounding routine maps to N_discr + 1 values
-  Rcpp::NumericVector X(N);
-  if(skipFirst){
-    if(N_discr == 0){
-      X[0] = gsm_cpp(x0,r,alpha);
-    }else{
+Rcpp::NumericVector gsm_iter_cpp(int N, double x0, double r, double alpha, int N_discr,bool skipFirst, int method){
+  if(method==1){
+    N_discr--; //Decrement because the rounding routine maps to N_discr + 1 values
+    Rcpp::NumericVector X(N);
+    if(skipFirst){
+      if(N_discr == 0){
+        X[0] = gsm_cpp(x0,r,alpha);
+      }else{
         X[0] = round(gsm_cpp(x0,r,alpha)*N_discr)/N_discr;
       }
-  }
-  if(N>1){
-    if(N_discr == 0){
-      for(int i=1; i<N ; i++){
-        X[i] = gsm_cpp(X[i-1],r,alpha);
-      }
-    }else{
-      for(int i=1; i<N ; i++){
-        X[i] = round(gsm_cpp(X[i-1],r,alpha)*N_discr)/N_discr;
+    }
+    if(N>1){
+      if(N_discr == 0){
+        for(int i=1; i<N ; i++){
+          X[i] = gsm_cpp(X[i-1],r,alpha);
+        }
+      }else{
+        for(int i=1; i<N ; i++){
+          X[i] = round(gsm_cpp(X[i-1],r,alpha)*N_discr)/N_discr;
+        }
       }
     }
+    return(X);
+  }else{
+    return(Dgsm_iter_cpp(N,x0,r,alpha,N_discr,skipFirst));
   }
-  return(X);
 }
 
 //' @title Gaussian likelihood for given data
@@ -290,13 +331,14 @@ NumericVector gsm_iter_cpp(int N, double x0, double r, double alpha, int N_discr
 //' @param Y vector of type double - the given data
 //' @param sigma double - the standard deviation of the gaussian likelihood
 //' @param N_discr integer - discretization of the state space (N_discr = 0 -> continuous case)
+//' @param method integer - discretization with 1... round or 2...matrix
 //' @details This routine is implemented in C++
 //' @author J.C. Lemm, P. v.W. Crommelin
 //' @references S. Sprott, Chaos and Time-series analysis
 //' @examples
 //' //DEFINITION:
 //' double Lik_gsm_cpp(double alpha, double r, double x0, NumericVector Y, double sigma, int N_discr){
-//'   int n = Y.size();
+//'   int n = Y.size(); //Because equally the generated skips first datapoint
 //'   bool skipFirst = true;
 //'   Rcpp::NumericVector X = gsm_iter_cpp(n,x0,r,alpha,N_discr,skipFirst);
 //'   double sum = 0;
@@ -308,10 +350,57 @@ NumericVector gsm_iter_cpp(int N, double x0, double r, double alpha, int N_discr
 //' }
 //' @export
 // [[Rcpp::export]]
-double Lik_gsm_cpp(double alpha, double r, double x0, NumericVector Y, double sigma, int N_discr){
+double Lik_gsm_cpp(double alpha, double r, double x0, Rcpp::NumericVector Y, double sigma, int N_discr, int method){
   int n = Y.size();
-  bool skipFirst = true;
-  Rcpp::NumericVector X = gsm_iter_cpp(n,x0,r,alpha,N_discr,skipFirst);
+  //skipFirst set to true because equally the generated skips first datapoint
+  Rcpp::NumericVector X(n);
+  if(N_discr==0){
+    X = gsm_iter_cpp(n,x0,r,alpha,N_discr,true,method);
+  }else{
+    if(method==1){
+      X = gsm_iter_cpp(n,x0,r,alpha,N_discr,true,method);
+    }else{
+      X = Dgsm_iter_cpp(n,x0,r,alpha,N_discr,true);
+    }
+  }
+  double sum = 0;
+  for(int i = 0; i<n ; i++){
+    sum += pow(Y[i]-X[i],2.0);
+  }
+  double L = pow(2.0*PI*pow(sigma,2),-0.5*n)*exp(-0.5*sum/pow(sigma,2.0));
+  return(L);
+}
+
+
+//' @title Gaussian likelihood for given data
+//' @description Generates a time Series generated by the DISCRETIZED version of the general symmetric map (gsm) and computes the likelihood given the data
+//' @param alpha double - exponent of gsm
+//' @param r double - control parameter of gsm
+//' @param x0 double - initial value of the time series
+//' @param Y vector of type double - the given data
+//' @param sigma double - the standard deviation of the gaussian likelihood
+//' @param N_discr integer - discretization of the state space
+//' @details This routine is implemented in C++
+//' @author J.C. Lemm, P. v.W. Crommelin
+//' @references S. Sprott, Chaos and Time-series analysis
+//' @examples
+//' //DEFINITION:
+//' double Lik_Dgsm_cpp(double alpha, double r, double x0, Rcpp::NumericVector Y, double sigma, int N_discr){
+//'   int n = Y.size();
+//'   bool skipFirst = true;
+//'   Rcpp::NumericVector X = Dgsm_iter_cpp(n,x0,r,alpha,N_discr,skipFirst);
+//'   double sum = 0;
+//'   for(int i = 0; i<n ; i++){
+//'     sum += pow(Y[i]-X[i],2.0);
+//'   }
+//'   double L = pow(2.0*PI*pow(sigma,2),-0.5*n)*exp(-0.5*sum/pow(sigma,2.0));
+//'   return(L);
+//' }
+//' @export
+// [[Rcpp::export]]
+double Lik_Dgsm_cpp(double alpha, double r, double x0, Rcpp::NumericVector Y, double sigma, int N_discr){
+  int n = Y.size();
+  Rcpp::NumericVector X = Dgsm_iter_cpp(n,x0,r,alpha,N_discr,true);
   double sum = 0;
   for(int i = 0; i<n ; i++){
     sum += pow(Y[i]-X[i],2.0);
