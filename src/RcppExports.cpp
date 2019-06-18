@@ -18,6 +18,35 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// getMat
+Rcpp::NumericMatrix getMat(double r, double alpha, int N_discr);
+RcppExport SEXP _myBayes_getMat(SEXP rSEXP, SEXP alphaSEXP, SEXP N_discrSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< double >::type r(rSEXP);
+    Rcpp::traits::input_parameter< double >::type alpha(alphaSEXP);
+    Rcpp::traits::input_parameter< int >::type N_discr(N_discrSEXP);
+    rcpp_result_gen = Rcpp::wrap(getMat(r, alpha, N_discr));
+    return rcpp_result_gen;
+END_RCPP
+}
+// Dgsm_iter_cpp
+Rcpp::NumericVector Dgsm_iter_cpp(int N, double x0, double r, double alpha, int N_discr, bool skipFirst);
+RcppExport SEXP _myBayes_Dgsm_iter_cpp(SEXP NSEXP, SEXP x0SEXP, SEXP rSEXP, SEXP alphaSEXP, SEXP N_discrSEXP, SEXP skipFirstSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< int >::type N(NSEXP);
+    Rcpp::traits::input_parameter< double >::type x0(x0SEXP);
+    Rcpp::traits::input_parameter< double >::type r(rSEXP);
+    Rcpp::traits::input_parameter< double >::type alpha(alphaSEXP);
+    Rcpp::traits::input_parameter< int >::type N_discr(N_discrSEXP);
+    Rcpp::traits::input_parameter< bool >::type skipFirst(skipFirstSEXP);
+    rcpp_result_gen = Rcpp::wrap(Dgsm_iter_cpp(N, x0, r, alpha, N_discr, skipFirst));
+    return rcpp_result_gen;
+END_RCPP
+}
 // gsm_iter_cpp
 NumericVector gsm_iter_cpp(int N, double x0, double r, double alpha, int N_discr, bool skipFirst);
 RcppExport SEXP _myBayes_gsm_iter_cpp(SEXP NSEXP, SEXP x0SEXP, SEXP rSEXP, SEXP alphaSEXP, SEXP N_discrSEXP, SEXP skipFirstSEXP) {
@@ -53,6 +82,8 @@ END_RCPP
 
 static const R_CallMethodDef CallEntries[] = {
     {"_myBayes_gsm_cpp", (DL_FUNC) &_myBayes_gsm_cpp, 3},
+    {"_myBayes_getMat", (DL_FUNC) &_myBayes_getMat, 3},
+    {"_myBayes_Dgsm_iter_cpp", (DL_FUNC) &_myBayes_Dgsm_iter_cpp, 6},
     {"_myBayes_gsm_iter_cpp", (DL_FUNC) &_myBayes_gsm_iter_cpp, 6},
     {"_myBayes_Lik_gsm_cpp", (DL_FUNC) &_myBayes_Lik_gsm_cpp, 6},
     {NULL, NULL, 0}

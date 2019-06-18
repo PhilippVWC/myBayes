@@ -2,19 +2,19 @@
 % Please edit documentation in R/RcppExports.R
 \name{gsm_cpp}
 \alias{gsm_cpp}
-\title{General symmetric map}
+\title{general symmetric map}
 \usage{
 gsm_cpp(x, r, alpha)
 }
 \arguments{
-\item{x}{input value for one iteration}
+\item{x}{double - input value for one iteration}
 
-\item{r}{control parameter}
+\item{r}{double - control parameter}
 
-\item{alpha}{exponent}
+\item{alpha}{double - exponent}
 }
 \value{
-The result of one single iteration/
+double - the result of one single iteration/
 }
 \description{
 a generalization of a one dimensional map, which incorporates (among others) the lorenz-, logistic and cubeMap

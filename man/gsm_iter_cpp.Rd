@@ -31,6 +31,7 @@ This routine is implemented in C++
 \examples{
 //DEFINITION
 NumericVector gsm_iter_cpp(int N, double x0, double r, double alpha, int N_discr,bool skipFirst){
+  N_discr--; //Decrement because the rounding routine maps to N_discr + 1 values
   Rcpp::NumericVector X(N);
   if(skipFirst){
     if(N_discr == 0){

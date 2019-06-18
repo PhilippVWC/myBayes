@@ -3,11 +3,11 @@ using namespace Rcpp;
 
 //' @title general symmetric map
 //' @description a generalization of a one dimensional map, which incorporates (among others) the lorenz-, logistic and cubeMap
-//' @param x input value for one iteration
-//' @param r control parameter
-//' @param alpha exponent
+//' @param x double - input value for one iteration
+//' @param r double - control parameter
+//' @param alpha double - exponent
 //' @details This routine is implemented in C++
-//' @return The result of one single iteration/
+//' @return double - the result of one single iteration/
 //' @author J.C. Lemm, P.v.W. Crommelin
 //' @references S. Sprott, Chaos and Time-series analysis
 //' @examples
@@ -19,6 +19,205 @@ using namespace Rcpp;
 // [[Rcpp::export]]
 double gsm_cpp(double x, double r, double alpha){
   return(r*(1-pow(2*abs(x-0.5),alpha)));
+}
+
+// private routine
+double min_cpp(Rcpp::NumericVector vec){
+  double m = vec[0];
+  for (int i = 0 ; i<vec.size() ; i++){
+    if(vec[i]<m){m = vec[i];}
+  }
+  return(m);
+}
+
+//' @title discretize the continuous general symmetric map
+//' @description This function converts the continuous general symmetric map into a matrix
+//' @param r double - control parameter
+//' @param alpha double - exponent
+//' @param N_discr integer - range of output matrix
+//' @details This routine is implemented in C++.
+//' @return matrix of type double - the corresponding matrix of range N
+//' @author J.C. Lemm, P.v.W. Crommelin
+//' @references S. Sprott, Chaos and Time-series analysis
+//' @examples
+//' Rcpp::NumericMatrix getMat(double r, double alpha, int N_discr){
+//'   //grid is defined by N_discr values and therefore stepsize dx:
+//'   double dx = 1.0/(N_discr-1.0);
+//'   Rcpp::NumericVector codomain(N_discr);
+//'   for(int i=0 ; i<N_discr ; i++){
+//'     codomain[i] = gsm_cpp(i*dx,r,alpha);
+//'   }
+//'   //get indexposition on defined grid
+//'   Rcpp::NumericVector index(N_discr);
+//'   double diff(N_discr);
+//'   for (int j=0 ; j<N_discr ; j++){
+//'     double min_diff = 1.0; //1.0 is the maximum distance
+//'     for (int i=0 ; i<N_discr ; i++){
+//'       diff = abs(codomain[j] - i*dx);
+//'       if(diff<=min_diff){
+//'         min_diff = diff;
+//'         index[j] = i;
+//'         }
+//'     }
+//'   }
+//'   Rcpp::NumericMatrix A(N_discr,N_discr);
+//'   //consider "ROW MAJOR ORDER" (Wikipedia) to loop over arrays in c/c++
+//'   //not implemented here
+//'   for (int i=0 ; i<N_discr ; i++){
+//'     for (int j=0 ; j<N_discr ; j++){
+//'       if (j == index[i]){
+//'         A(j,i) = 1.0;
+//'       }else{
+//'         A(j,i) = 0.0;
+//'       }
+//'     }
+//'   }
+//'   return(A);
+//' }
+//' @export
+// [[Rcpp::export]]
+Rcpp::NumericMatrix getMat(double r, double alpha, int N_discr){
+  //grid is defined by N_discr values and therefore stepsize dx:
+  double dx = 1.0/(N_discr-1.0);
+  Rcpp::NumericVector codomain(N_discr);
+  for(int i=0 ; i<N_discr ; i++){
+    codomain[i] = gsm_cpp(i*dx,r,alpha);
+  }
+  //get indexposition on defined grid
+  Rcpp::NumericVector index(N_discr);
+  double diff(N_discr);
+  for (int j=0 ; j<N_discr ; j++){
+    double min_diff = 1.0; //1.0 is the maximum distance
+    for (int i=0 ; i<N_discr ; i++){
+      diff = abs(codomain[j] - i*dx);
+      if(diff<=min_diff){
+        min_diff = diff;
+        index[j] = i;
+        }
+    }
+  }
+  Rcpp::NumericMatrix A(N_discr,N_discr);
+  //consider "ROW MAJOR ORDER" (Wikipedia) to loop over arrays in c/c++
+  //not implemented here
+  for (int i=0 ; i<N_discr ; i++){
+    for (int j=0 ; j<N_discr ; j++){
+      if (j == index[i]){
+        A(j,i) = 1.0;
+      }else{
+        A(j,i) = 0.0;
+      }
+    }
+  }
+  return(A);
+}
+
+// private routine
+Rcpp::NumericVector valToVec_cpp(double val, int N_discr){
+  Rcpp::NumericVector gridDist(N_discr);
+  double dx = 1.0/(N_discr-1.0);
+  for (int i=0; i<N_discr ; i++){
+    gridDist[i] = abs(val-(i*dx));
+  }
+  double min_gridDist = min_cpp(gridDist);
+  int index = 0;
+  for (int i=0; i<N_discr ; i++){
+    if(gridDist[i]==min_gridDist){
+      index = i;
+    }
+  }
+  Rcpp::NumericVector result(N_discr);
+  result[index] = 1;
+  return(result);
+}
+
+// private routine
+Rcpp::NumericVector dotProd(Rcpp::NumericMatrix A,Rcpp::NumericVector x){
+  int n = A.nrow();
+  int m = A.ncol();
+  Rcpp::NumericVector b(n);
+  if(m==x.size()){
+    for (int i=0; i<n ; i++){
+      for (int j=0; j<m ; j++){
+       b[i] += A(i,j)*x[j];
+      }
+    }
+  }
+  return(b);
+}
+
+// private routine
+// currently not in use
+double innerProd(Rcpp::NumericVector a,Rcpp::NumericVector b){
+  int n1 = a.size();
+  int n2 = b.size();
+  double result = 0;
+  if(n1==n2){
+    for (int i=0 ; i<n1 ; i++){
+      result += a[i]*b[i];
+    }
+  }
+  return(result);
+}
+
+// private routine
+//' @title project index vector onto grid
+double vecToVal_cpp(Rcpp::NumericVector x){
+  int n = x.size();
+  double dx = 1.0/(n-1.0);
+  double result = 0;
+  for (int i=0 ; i<n ; i++){
+    result += x[i]*(i*dx);
+  }
+  return(result);
+}
+
+
+//' @title Time series creation with discretized output
+//' @description Create time series produced by discrete model of the general symmetric map
+//' @param N integer - Number of iterations
+//' @param x0 double - starting value
+//' @param r double - controll parameter
+//' @param alpha double - exponent of general symmetric map
+//' @param N_discr integer - controlls discretization of state space
+//' @param skipFirst Boolean - If set to FALSE, the resulting time series contains the initial value x0
+//' @details This routine is implemented in C++
+//' @return vector of type double - the resulting time series
+//' @author J.C. Lemm, P. v.W. Crommelin
+//' @examples
+//' //DEFINITION
+//' Rcpp::NumericVector Dgsm_iter_cpp(int N, double x0, double r, double alpha, int N_discr, bool skipFirst){
+//'   Rcpp::NumericMatrix A = getMat(r,alpha,N_discr);
+//'   //create vector from starting value
+//'   Rcpp::NumericVector x = valToVec_cpp(x0,N_discr);
+//'   Rcpp::NumericVector Series(N);
+//'   //initialization
+//'   if(skipFirst){
+//'     x = dotProd(A,x);
+//'   }
+//'   Series[0] = vecToVal_cpp(x);
+//'   for(int i=1 ; i<N ; i++){
+//'     x = dotProd(A,x);
+//'     Series[i] = vecToVal_cpp(x);
+//'   }
+//'   return(Series);
+//' }
+//' @export
+// [[Rcpp::export]]
+Rcpp::NumericVector Dgsm_iter_cpp(int N, double x0, double r, double alpha, int N_discr, bool skipFirst){
+  Rcpp::NumericMatrix A = getMat(r,alpha,N_discr);
+  //create vector from starting value
+  Rcpp::NumericVector x = valToVec_cpp(x0,N_discr);
+  Rcpp::NumericVector Series(N);
+  //initialization
+  if(skipFirst){
+    x = dotProd(A,x);
+  }
+  Series[0] = vecToVal_cpp(x);
+  for(int i=1 ; i<N ; i++){
+    x = dotProd(A,x);
+    Series[i] = vecToVal_cpp(x);
+  }
+  return(Series);
 }
 
 //' @title Time series creation
@@ -35,6 +234,7 @@ double gsm_cpp(double x, double r, double alpha){
 //' @examples
 //' //DEFINITION
 //' NumericVector gsm_iter_cpp(int N, double x0, double r, double alpha, int N_discr,bool skipFirst){
+//'   N_discr--; //Decrement because the rounding routine maps to N_discr + 1 values
 //'   Rcpp::NumericVector X(N);
 //'   if(skipFirst){
 //'     if(N_discr == 0){
@@ -59,21 +259,22 @@ double gsm_cpp(double x, double r, double alpha){
 //' @export
 // [[Rcpp::export]]
 NumericVector gsm_iter_cpp(int N, double x0, double r, double alpha, int N_discr,bool skipFirst){
+  N_discr--; //Decrement because the rounding routine maps to N_discr + 1 values
   Rcpp::NumericVector X(N);
   if(skipFirst){
     if(N_discr == 0){
       X[0] = gsm_cpp(x0,r,alpha);
     }else{
-      X[0] = round(gsm_cpp(x0,r,alpha)*N_discr)/N_discr;
-    }
+        X[0] = round(gsm_cpp(x0,r,alpha)*N_discr)/N_discr;
+      }
   }
   if(N>1){
     if(N_discr == 0){
-      for(int i = 1; i<N ; i++){
+      for(int i=1; i<N ; i++){
         X[i] = gsm_cpp(X[i-1],r,alpha);
       }
     }else{
-      for(int i = 1; i<N ; i++){
+      for(int i=1; i<N ; i++){
         X[i] = round(gsm_cpp(X[i-1],r,alpha)*N_discr)/N_discr;
       }
     }
