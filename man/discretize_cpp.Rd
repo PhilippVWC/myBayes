@@ -13,19 +13,19 @@ discretize_cpp(val, N_discr, domain, method)
 
 \item{domain}{vector of double - vector with two components containing the domain bounds}
 
-\item{method}{integer - discretize with 1..."round" or 2...custom method}
+\item{method}{integer - discretize with 1...round routine, or 2...custom method}
 }
 \value{
 double - discretized value
 }
 \description{
-this routine discretizes a value corresponding to the desired routine
+this routine discretizes a value corresponding to the desired method
 }
 \details{
 This routine is implemented in C++
 }
 \examples{
-//DEFINITION
+//C++ DEFINITION
 double discretize_cpp(double val,  int N_discr, Rcpp::NumericVector domain, int method){
   double lower = domain[0];
   double upper = domain[1];

@@ -29,7 +29,7 @@ Create time series produced by general symmetric map
 This routine is implemented in C++
 }
 \examples{
-//DEFINITION
+//C++ DEFINITION
 NumericVector gsm_iter_cpp(int N, double x0, double r, double alpha, int N_discr,bool skipFirst){
   N_discr--; //Decrement because the rounding routine maps to N_discr + 1 values
   Rcpp::NumericVector X(N);

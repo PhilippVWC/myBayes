@@ -5,6 +5,46 @@
 
 using namespace Rcpp;
 
+// get_i
+double get_i(double x, Rcpp::NumericVector domain, int N_discr);
+RcppExport SEXP _myBayes_get_i(SEXP xSEXP, SEXP domainSEXP, SEXP N_discrSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< double >::type x(xSEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type domain(domainSEXP);
+    Rcpp::traits::input_parameter< int >::type N_discr(N_discrSEXP);
+    rcpp_result_gen = Rcpp::wrap(get_i(x, domain, N_discr));
+    return rcpp_result_gen;
+END_RCPP
+}
+// vecMap
+double vecMap(double x, Rcpp::NumericVector vec, Rcpp::NumericVector domain, int N_discr);
+RcppExport SEXP _myBayes_vecMap(SEXP xSEXP, SEXP vecSEXP, SEXP domainSEXP, SEXP N_discrSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< double >::type x(xSEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type vec(vecSEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type domain(domainSEXP);
+    Rcpp::traits::input_parameter< int >::type N_discr(N_discrSEXP);
+    rcpp_result_gen = Rcpp::wrap(vecMap(x, vec, domain, N_discr));
+    return rcpp_result_gen;
+END_RCPP
+}
+// getIndexVector
+Rcpp::NumericVector getIndexVector(Rcpp::NumericVector vec, Rcpp::NumericVector domain, int N_discr);
+RcppExport SEXP _myBayes_getIndexVector(SEXP vecSEXP, SEXP domainSEXP, SEXP N_discrSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type vec(vecSEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type domain(domainSEXP);
+    Rcpp::traits::input_parameter< int >::type N_discr(N_discrSEXP);
+    rcpp_result_gen = Rcpp::wrap(getIndexVector(vec, domain, N_discr));
+    return rcpp_result_gen;
+END_RCPP
+}
 // gsm_cpp
 double gsm_cpp(double x, double r, double alpha);
 RcppExport SEXP _myBayes_gsm_cpp(SEXP xSEXP, SEXP rSEXP, SEXP alphaSEXP) {
@@ -15,6 +55,51 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< double >::type r(rSEXP);
     Rcpp::traits::input_parameter< double >::type alpha(alphaSEXP);
     rcpp_result_gen = Rcpp::wrap(gsm_cpp(x, r, alpha));
+    return rcpp_result_gen;
+END_RCPP
+}
+// indexGsm
+Rcpp::NumericVector indexGsm(double r, double alpha, int N_discr);
+RcppExport SEXP _myBayes_indexGsm(SEXP rSEXP, SEXP alphaSEXP, SEXP N_discrSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< double >::type r(rSEXP);
+    Rcpp::traits::input_parameter< double >::type alpha(alphaSEXP);
+    Rcpp::traits::input_parameter< int >::type N_discr(N_discrSEXP);
+    rcpp_result_gen = Rcpp::wrap(indexGsm(r, alpha, N_discr));
+    return rcpp_result_gen;
+END_RCPP
+}
+// vecMap_iter
+Rcpp::NumericVector vecMap_iter(int N, double x0, Rcpp::NumericVector vec, Rcpp::NumericVector domain, int N_discr, bool skipFirst);
+RcppExport SEXP _myBayes_vecMap_iter(SEXP NSEXP, SEXP x0SEXP, SEXP vecSEXP, SEXP domainSEXP, SEXP N_discrSEXP, SEXP skipFirstSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< int >::type N(NSEXP);
+    Rcpp::traits::input_parameter< double >::type x0(x0SEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type vec(vecSEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type domain(domainSEXP);
+    Rcpp::traits::input_parameter< int >::type N_discr(N_discrSEXP);
+    Rcpp::traits::input_parameter< bool >::type skipFirst(skipFirstSEXP);
+    rcpp_result_gen = Rcpp::wrap(vecMap_iter(N, x0, vec, domain, N_discr, skipFirst));
+    return rcpp_result_gen;
+END_RCPP
+}
+// gsmAsVec_iter
+Rcpp::NumericVector gsmAsVec_iter(int N, double x0, double r, double alpha, int N_discr, bool skipFirst);
+RcppExport SEXP _myBayes_gsmAsVec_iter(SEXP NSEXP, SEXP x0SEXP, SEXP rSEXP, SEXP alphaSEXP, SEXP N_discrSEXP, SEXP skipFirstSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< int >::type N(NSEXP);
+    Rcpp::traits::input_parameter< double >::type x0(x0SEXP);
+    Rcpp::traits::input_parameter< double >::type r(rSEXP);
+    Rcpp::traits::input_parameter< double >::type alpha(alphaSEXP);
+    Rcpp::traits::input_parameter< int >::type N_discr(N_discrSEXP);
+    Rcpp::traits::input_parameter< bool >::type skipFirst(skipFirstSEXP);
+    rcpp_result_gen = Rcpp::wrap(gsmAsVec_iter(N, x0, r, alpha, N_discr, skipFirst));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -42,6 +127,21 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< Rcpp::NumericVector >::type domain(domainSEXP);
     Rcpp::traits::input_parameter< int >::type method(methodSEXP);
     rcpp_result_gen = Rcpp::wrap(discretize_cpp(val, N_discr, domain, method));
+    return rcpp_result_gen;
+END_RCPP
+}
+// iterFromMatrix_cpp
+Rcpp::NumericVector iterFromMatrix_cpp(double x0, Rcpp::NumericMatrix mat, int N, Rcpp::NumericVector domain, bool skipFirst);
+RcppExport SEXP _myBayes_iterFromMatrix_cpp(SEXP x0SEXP, SEXP matSEXP, SEXP NSEXP, SEXP domainSEXP, SEXP skipFirstSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< double >::type x0(x0SEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericMatrix >::type mat(matSEXP);
+    Rcpp::traits::input_parameter< int >::type N(NSEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type domain(domainSEXP);
+    Rcpp::traits::input_parameter< bool >::type skipFirst(skipFirstSEXP);
+    rcpp_result_gen = Rcpp::wrap(iterFromMatrix_cpp(x0, mat, N, domain, skipFirst));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -113,9 +213,16 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
+    {"_myBayes_get_i", (DL_FUNC) &_myBayes_get_i, 3},
+    {"_myBayes_vecMap", (DL_FUNC) &_myBayes_vecMap, 4},
+    {"_myBayes_getIndexVector", (DL_FUNC) &_myBayes_getIndexVector, 3},
     {"_myBayes_gsm_cpp", (DL_FUNC) &_myBayes_gsm_cpp, 3},
+    {"_myBayes_indexGsm", (DL_FUNC) &_myBayes_indexGsm, 3},
+    {"_myBayes_vecMap_iter", (DL_FUNC) &_myBayes_vecMap_iter, 6},
+    {"_myBayes_gsmAsVec_iter", (DL_FUNC) &_myBayes_gsmAsVec_iter, 6},
     {"_myBayes_getMat", (DL_FUNC) &_myBayes_getMat, 3},
     {"_myBayes_discretize_cpp", (DL_FUNC) &_myBayes_discretize_cpp, 4},
+    {"_myBayes_iterFromMatrix_cpp", (DL_FUNC) &_myBayes_iterFromMatrix_cpp, 5},
     {"_myBayes_Dgsm_iter_cpp", (DL_FUNC) &_myBayes_Dgsm_iter_cpp, 6},
     {"_myBayes_gsm_iter_cpp", (DL_FUNC) &_myBayes_gsm_iter_cpp, 7},
     {"_myBayes_Lik_gsm_cpp", (DL_FUNC) &_myBayes_Lik_gsm_cpp, 7},

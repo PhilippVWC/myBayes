@@ -29,7 +29,7 @@ Create time series produced by discrete model of the general symmetric map
 This routine is implemented in C++
 }
 \examples{
-//DEFINITION
+//C++ DEFINITION
 Rcpp::NumericVector Dgsm_iter_cpp(int N, double x0, double r, double alpha, int N_discr, bool skipFirst){
   Rcpp::NumericMatrix A = getMat(r,alpha,N_discr);
   //create vector from starting value
