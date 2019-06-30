@@ -48,6 +48,11 @@ get_i <- function(x, domain, N_discr) {
 }
 
 #' @export
+vecMap_iter2 <- function(N, x0, vecMap, domain, N_discr, skipFirst) {
+    .Call(`_myBayes_vecMap_iter2`, N, x0, vecMap, domain, N_discr, skipFirst)
+}
+
+#' @export
 vecMap <- function(x, vec, domain, N_discr) {
     .Call(`_myBayes_vecMap`, x, vec, domain, N_discr)
 }

@@ -63,6 +63,21 @@ double get_i(double x, Rcpp::NumericVector domain, int N_discr){
 
 //' @export
 // [[Rcpp::export]]
+Rcpp::NumericVector vecMap_iter2(int N, double x0, Rcpp::NumericVector vecMap, Rcpp::NumericVector domain, int N_discr, bool skipFirst){
+  Rcpp::NumericVector Series(N);
+  if(skipFirst){
+    Series[0] = vecMap[get_i(x0,domain,N_discr)];
+  }else{
+    Series[0] = x0;
+  }
+  for( int i=1; i<N ; i++){
+    Series[i] = vecMap[get_i(Series[i-1],domain,N_discr)];
+  }
+  return(Series);
+}
+
+//' @export
+// [[Rcpp::export]]
 double vecMap(double x, Rcpp::NumericVector vec, Rcpp::NumericVector domain, int N_discr){
   double dx = (domain[1]-domain[0])/(N_discr-1.0);
   return(vec[get_i(x,domain,N_discr)]*dx);

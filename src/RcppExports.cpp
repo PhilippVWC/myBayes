@@ -18,6 +18,22 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// vecMap_iter2
+Rcpp::NumericVector vecMap_iter2(int N, double x0, Rcpp::NumericVector vecMap, Rcpp::NumericVector domain, int N_discr, bool skipFirst);
+RcppExport SEXP _myBayes_vecMap_iter2(SEXP NSEXP, SEXP x0SEXP, SEXP vecMapSEXP, SEXP domainSEXP, SEXP N_discrSEXP, SEXP skipFirstSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< int >::type N(NSEXP);
+    Rcpp::traits::input_parameter< double >::type x0(x0SEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type vecMap(vecMapSEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type domain(domainSEXP);
+    Rcpp::traits::input_parameter< int >::type N_discr(N_discrSEXP);
+    Rcpp::traits::input_parameter< bool >::type skipFirst(skipFirstSEXP);
+    rcpp_result_gen = Rcpp::wrap(vecMap_iter2(N, x0, vecMap, domain, N_discr, skipFirst));
+    return rcpp_result_gen;
+END_RCPP
+}
 // vecMap
 double vecMap(double x, Rcpp::NumericVector vec, Rcpp::NumericVector domain, int N_discr);
 RcppExport SEXP _myBayes_vecMap(SEXP xSEXP, SEXP vecSEXP, SEXP domainSEXP, SEXP N_discrSEXP) {
@@ -214,6 +230,7 @@ END_RCPP
 
 static const R_CallMethodDef CallEntries[] = {
     {"_myBayes_get_i", (DL_FUNC) &_myBayes_get_i, 3},
+    {"_myBayes_vecMap_iter2", (DL_FUNC) &_myBayes_vecMap_iter2, 6},
     {"_myBayes_vecMap", (DL_FUNC) &_myBayes_vecMap, 4},
     {"_myBayes_getIndexVector", (DL_FUNC) &_myBayes_getIndexVector, 3},
     {"_myBayes_gsm_cpp", (DL_FUNC) &_myBayes_gsm_cpp, 3},

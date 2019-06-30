@@ -1,5 +1,5 @@
 #' @export
-packageManager = function(necessaryPackages){
+packageManager = function(necessaryPackages,req = TRUE){
   installedPackages = installed.packages()[,"Package"]
   missingPackages = necessaryPackages[!(necessaryPackages %in% installedPackages)]
   if (length(missingPackages) > 0){
@@ -16,6 +16,6 @@ packageManager = function(necessaryPackages){
   if (length(notInstalled) > 0) {
     cat("The following packages were not installed:",notInstalled,"\n")
   }
-  lapply(necessaryPackages,require,character.only=TRUE) # load library after installation
+  if(req) lapply(necessaryPackages,require,character.only=TRUE) # load library after installation
   return("packageManager finished")
 }
