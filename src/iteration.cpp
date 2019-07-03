@@ -8,7 +8,8 @@ using namespace Rcpp;
 //' @param N_discr integer - discretization of the interval bounded by domain
 //' @details This routine is implemented in C++. Note that a (continuous) value between two grid
 //' points condenses two its right grid point
-//' @return integer - The index position on the specified grid belonging to the continuous value x
+//' @return integer - The index position on the specified grid belonging to the continuous value x or -1
+//' if input values are not adequate
 //' @author P.v.W. Crommelin
 //' @references S. Sprott, Chaos and Time-series analysis
 //' @examples
@@ -57,7 +58,6 @@ double get_i(double x, Rcpp::NumericVector domain, int N_discr){
     return(i);
   }else{
     return(-1);
-    std::printf("Input parameters not adequately chosen. See help(get_i) for more information");
   }
 }
 
