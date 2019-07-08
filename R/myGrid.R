@@ -10,16 +10,18 @@ myGrid = function(xlim,ylim,nx,ny=nx,lty = DASHED,lwd = 1,col = "black"){
                by = dy)
   sapply(X = xticks,
          FUN = function(tick){
-           abline(v = tick,
-                  lwd = lwd,
-                  lty = lty,
-                  col = col)
+           lines(x = rep(tick,2),
+                 y = ylim,
+                 lwd = lwd,
+                 lty = lty,
+                 col = col)
          })
   sapply(X = yticks,
          FUN = function(tick){
-           abline(h = tick,
-                  lwd = lwd,
-                  lty = lty,
-                  col = col)
+           lines(x = xlim,
+                 y = rep(tick,2),
+                 lwd = lwd,
+                 lty = lty,
+                 col = col)
          })
 }

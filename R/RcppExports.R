@@ -8,7 +8,8 @@
 #' @param N_discr integer - discretization of the interval bounded by domain
 #' @details This routine is implemented in C++. Note that a (continuous) value between two grid
 #' points condenses two its right grid point
-#' @return integer - The index position on the specified grid belonging to the continuous value x
+#' @return integer - The index position on the specified grid belonging to the continuous value x or -1
+#' if input values are not adequate
 #' @author P.v.W. Crommelin
 #' @references S. Sprott, Chaos and Time-series analysis
 #' @examples

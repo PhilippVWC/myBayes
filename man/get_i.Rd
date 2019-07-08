@@ -14,7 +14,8 @@ get_i(x, domain, N_discr)
 \item{N_discr}{integer - discretization of the interval bounded by domain}
 }
 \value{
-integer - The index position on the specified grid belonging to the continuous value x
+integer - The index position on the specified grid belonging to the continuous value x or -1
+if input values are not adequate
 }
 \description{
 This function provides the corresponding index position on the specified grid

@@ -13,7 +13,7 @@ DASHED = 2
 #' @export
 SOLID = 1
 #' @export
-LWD_GRID = 0.75 #line width for grids
+LWD_GRID = 1.5 #line width for grids
 #' @export
 COLOR_BG_LEG = "#FFFF0099" # transparent yellow
 #' @export
