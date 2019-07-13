@@ -1,5 +1,5 @@
 ### P.v.W.Crommelin ###
-# Graphical parameters
+# Graphical parameters for plots saved images
 #' @export
 DASHDOTTED_LONG = 6
 #' @export

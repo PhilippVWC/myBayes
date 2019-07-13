@@ -1,3 +1,29 @@
+#' @title myGrid draws grids
+#' @description Extension of R's core function grid(). This function plots a grid only within the box constraints specified
+#' by xlim and ylim. The grid will be drawn to the currently open graphics device.
+#' @param xlim Vector of type double - The bounds along the x axis for the grid.
+#' @param ylim Vector of type double - The bounds along the y axis for the grid.
+#' @param nx Integer - Number of vertical lines to be drawn.
+#' @param ny Integer - Number of horizontal lines to be drawn. Defaults to nx.
+#' @param lty Integer - Specifies the linetype similarly to R's core function grid().
+#' @param lwd Integer - Specifies the linewidth similarly to R's core function grid().
+#' @param col Character string - The color to be used for the grid lines.
+#' @return No return value.
+#' @author P.v.W. Crommelin
+#' @examples
+#' x = seq(from = 0,
+#'              to = 3,
+#'              by = 0.01)
+#' plot(x = x,
+#'      y = x,
+#'      type = "l")
+#' myGrid(xlim = c(1,2),
+#'        ylim = c(0.5,2.5),
+#'        nx = 10,
+#'        ny = 15,
+#'        lty = 2,
+#'        lwd = 2,
+#'        col = "blue")
 #' @export
 myGrid = function(xlim,ylim,nx,ny=nx,lty = DASHED,lwd = 1,col = "black"){
   dx = (xlim[2]-xlim[1])/(nx-1)
