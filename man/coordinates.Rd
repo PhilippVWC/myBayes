@@ -7,13 +7,16 @@
 coordinates(X, Y, surface)
 }
 \arguments{
-\item{X}{coordinates and creates a grid in the form of a vector}
+\item{X}{Vector of type integer - x domain}
 
-\item{X}{coordinates and creates a grid in the form of a vector}
+\item{Y}{Vector of type integer - y domain}
 }
 \value{
 output is a matrix with 3 columns containing the coordinates X,Y,Z as column vectors
 }
 \description{
+This function takes two vectors X and Y that define a domain and a surface Z,
+and creates a matrix containing the coordinates.
+
 X and Y are both 1D, surface is 2D
 }

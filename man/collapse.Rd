@@ -43,5 +43,5 @@ legend("topright",
        lty = 1)
 }
 \author{
-J.C. Lemm, P.v.W. Crommelin
+P.v.W. Crommelin
 }
