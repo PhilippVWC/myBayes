@@ -11,10 +11,10 @@ Among the most important functions available in *myBayes* are:
 
 Function | Purpose
 ---------|----------
-MH | Simmulated annealing for optimization purposes.
+MH | Simmulated annealing for optimization in one dimension.
 
 ## Special remarks ##
 Many routines are implemented in C++ in order to increase performance. 
 
 ## Dependencies ##
-C++ integration is accomplished via Dirk Eddelbuettels ***Rcpp*** package (For more information see [Rcpp](http://rcpp.org/) ).
+C++ integration is accomplished by Dirk Eddelbuettels ***Rcpp*** package (For more information see [Rcpp](http://rcpp.org/)).

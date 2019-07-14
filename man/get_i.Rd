@@ -7,21 +7,23 @@
 get_i(x, domain, N_discr)
 }
 \arguments{
-\item{x}{double - continuous value, to be identified on specified grid}
-
-\item{domain}{vector of type double - vector with two components containing the bounds of the discretized interval}
+\item{domain}{Vector of type double - Vector with two components containing
+the bounds of the discretized interval}
 
 \item{N_discr}{integer - discretization of the interval bounded by domain}
+
+\item{X}{Double - Continuous value, to be identified on specified grid.}
 }
 \value{
-integer - The index position on the specified grid belonging to the continuous value x or -1
+Integer - The index position on the specified grid belonging to the continuous value x or -1
 if input values are not adequate
 }
 \description{
-This function provides the corresponding index position on the specified grid
+This function provides the corresponding index position on the specified grid.
 }
 \details{
-This routine is implemented in C++. Note that a (continuous) value between two grid
+This routine is implemented in C++. Note that a (continuous) value
+between two grid
 points condenses two its right grid point
 }
 \examples{
