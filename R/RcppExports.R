@@ -333,18 +333,18 @@ gsm_iter_cpp <- function(N, x0, r, alpha, N_discr, skipFirst, method) {
 #'          lwd = 3)
 #'
 #'
-#' //C++ DEFINITION:
-#' double Lik_gsm_cpp(double alpha, double r, double x0, NumericVector Y, double sigma, int N_discr){
-#'   int n = Y.size(); //Because equally the generated skips first datapoint
-#'   bool skipFirst = true;
-#'   Rcpp::NumericVector X = gsm_iter_cpp(n,x0,r,alpha,N_discr,skipFirst);
-#'   double sum = 0;
-#'   for(int i = 0; i<n ; i++){
-#'     sum += pow(Y[i]-X[i],2.0);
-#'   }
-#'   double L = pow(2.0*PI*pow(sigma,2),-0.5*n)*exp(-0.5*sum/pow(sigma,2.0));
-#'   return(L);
-#' }
+#' #C++ DEFINITION:
+#' #double Lik_gsm_cpp(double alpha, double r, double x0, NumericVector Y, double sigma, int N_discr){
+#' #  int n = Y.size(); //Because equally the generated skips first datapoint
+#' #  bool skipFirst = true;
+#' #  Rcpp::NumericVector X = gsm_iter_cpp(n,x0,r,alpha,N_discr,skipFirst);
+#' #  double sum = 0;
+#' #  for(int i = 0; i<n ; i++){
+#' #    sum += pow(Y[i]-X[i],2.0);
+#' #  }
+#' #  double L = pow(2.0*PI*pow(sigma,2),-0.5*n)*exp(-0.5*sum/pow(sigma,2.0));
+#' #  return(L);
+#' #}
 #' @export
 Lik_gsm_cpp <- function(alpha, r, x0, Y, sigma, N_discr, method) {
     .Call(`_myBayes_Lik_gsm_cpp`, alpha, r, x0, Y, sigma, N_discr, method)
