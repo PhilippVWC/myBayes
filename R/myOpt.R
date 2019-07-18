@@ -7,16 +7,16 @@ myOpt = function(candidates,fn,maximum = TRUE,maxit=200,bounds){
                fn_minus = function(x) -fn(x) # for minimum search
                dim = length(row)
                par = row[1:length(dim)]
-               newVals = c(0,0,1) #method code 1 is a (non informative) gap filler - Will be erased later
+               newVals = c(0,0,1) #Method code 1 is a (non informative) gap filler - Will be later erased.
 
                if(dim==1){
-                 # combination of golden section search and parabolic interpolation
+                 #Combination of golden section search and parabolic interpolation.
                  del = abs(0.5*par)
                  res = optimize(f = fn,
                                 lower = par - del,
                                 upper = par + del,
                                 maximum = TRUE)
-                 newVals = c(newVals,res$objective,res$maximum,2) # last value is method code
+                 newVals = c(newVals,res$objective,res$maximum,2) #Last value is method code.
                }
 
                # Generalized simmulated Annealing

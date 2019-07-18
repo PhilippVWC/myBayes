@@ -29,17 +29,14 @@ max2d = function(mat,epsilon=1.0,maximum=TRUE,maxRows=NA){
     result = data.frame("value"=values, "RowIndex"=x_indices, "ColIndex"=y_indices)
     nRow = nrow(result)
     if ( !is.na(maxRows) & nRow>maxRows ) {
-      print("###########################################################################")
-      print("### Function <<max2d>>:")
-      print(paste0("### Upper bound hit. Available results: ",nRow))
+      print(paste0("### Available results: ",nRow,". Only maxRows = ",maxRows," selected."))
       print("### Increase <<maxRows>> to increase number of results.")
-      print("###########################################################################")
-      if (maximum == TRUE){
-        result = result[order(result$MaxVal,
+      if(maximum == TRUE){
+        result = result[order(result$value,
                               decreasing = TRUE),]
         return(result[1:maxRows,])
       } else {
-        result = result[order(result$MaxVal,
+        result = result[order(result$value,
                               decreasing = FALSE),]
         return(result[1:maxRows,])
       }
