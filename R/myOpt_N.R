@@ -1,3 +1,4 @@
+#' @export
 myOpt_N = function(candidates,fn,lower,upper,control=list(),gr=NULL,maxit = 200){
   MX = apply(X = as.matrix(candidates),
              MARGIN = 1,
