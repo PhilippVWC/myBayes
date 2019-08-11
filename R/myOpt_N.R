@@ -1,5 +1,5 @@
 #' @export
-myOpt_N = function(candidates,fn,lower,upper,control=list(),gr=NULL,maxit = 200,statusMessage = TRUE){
+myOpt_N = function(candidates,fn,lower,upper,control=list(),gr=NULL,maxit = 200,statusMessages = TRUE){
   MX = apply(X = as.matrix(candidates),
              MARGIN = 1,
              FUN = function(par){
