@@ -1,5 +1,5 @@
 #' @export
-myOpt_N = function(candidates,fn,lower,upper,control=list(),gr=NULL,maxit = 200){
+myOpt_N = function(candidates,fn,lower,upper,control=list(),gr=NULL,maxit = 200,statusMessage = TRUE){
   MX = apply(X = as.matrix(candidates),
              MARGIN = 1,
              FUN = function(par){
@@ -9,20 +9,22 @@ myOpt_N = function(candidates,fn,lower,upper,control=list(),gr=NULL,maxit = 200)
 
                # Generalized simmulated Annealing
                tryCatch(expr = {
+                 if (statusMessage) print("GenSA")
                  res = GenSA::GenSA(par = par,
                                     fn = fn,
                                     lower = lower,
                                     upper = upper,
-                                    control = list(maxit = maxit))
+                                    control = list("maxit" = maxit,
+                                                   "max.time" = 10))
                  newVals = c(newVals,res$par,-res$value,3)
                },
                warning = function(w){
-                 print(paste0("GenSA::GenSA WARNING: ",w))
+                 if (statusMessage) print(paste0("GenSA::GenSA WARNING: ",w))
                  newVals = c(0,rep(0,dim),1) #Method code 1 is a (non informative) gap filler - Will be later erased.
                  return()
                },
                error = function(e){
-                 print(paste0("GenSA::GenSA ERROR: ",e))
+                 if (statusMessage) print(paste0("GenSA::GenSA ERROR: ",e))
                  newVals = c(0,rep(0,dim),1) #Method code 1 is a (non informative) gap filler - Will be later erased.
                  return()
                },
@@ -30,6 +32,7 @@ myOpt_N = function(candidates,fn,lower,upper,control=list(),gr=NULL,maxit = 200)
 
                # Simulated Annealing - UNBOUNDED
                tryCatch(expr = {
+                 if (statusMessage) print("stats::optim SANN")
                  res = stats::optim(par = par,
                                     fn = fn,
                                     method = "SANN",
@@ -44,12 +47,12 @@ myOpt_N = function(candidates,fn,lower,upper,control=list(),gr=NULL,maxit = 200)
                  }
                },
                warning = function(w){
-                 print(paste0("stats::optim Simulated annealing WARNING: ",w))
+                 if (statusMessage) print(paste0("stats::optim Simulated annealing WARNING: ",w))
                  newVals = c(0,rep(0,dim),1) #Method code 1 is a (non informative) gap filler - Will be later erased.
                  return()
                },
                error = function(e){
-                 print(paste0("stats::optim Simulated annealing ERROR: ",e))
+                 if (statusMessage) print(paste0("stats::optim Simulated annealing ERROR: ",e))
                  newVals = c(0,rep(0,dim),1) #Method code 1 is a (non informative) gap filler - Will be later erased.
                  return()
                },
@@ -57,6 +60,7 @@ myOpt_N = function(candidates,fn,lower,upper,control=list(),gr=NULL,maxit = 200)
 
                # Quasi Newton algorithm with approximated Hessian matrix - UNBOUNDED
                tryCatch(expr = {
+                 if (statusMessage) print("stats::optim BFGS")
                  res = stats::optim(par = par,
                                     fn = fn,
                                     method = "BFGS",
@@ -72,20 +76,20 @@ myOpt_N = function(candidates,fn,lower,upper,control=list(),gr=NULL,maxit = 200)
                  }
                },
                warning = function(w){
-                 print(paste0("stats::optim BFGS WARNING: ",w))
+                 if (statusMessage) print(paste0("stats::optim BFGS WARNING: ",w))
                  newVals = c(0,rep(0,dim),1) #Method code 1 is a (non informative) gap filler - Will be later erased.
                  return()
                },
                error = function(e){
-                 print(paste0("stats::optim BFGS ERROR: ",e))
+                 if (statusMessage) print(paste0("stats::optim BFGS ERROR: ",e))
                  newVals = c(0,rep(0,dim),1) #Method code 1 is a (non informative) gap filler - Will be later erased.
                  return()
                },
                finally = {})
 
-
                # Quasi Newton algorithm with approximated Hessian matrix - BOUNDED
                tryCatch(expr = {
+                 if (statusMessage) print("Rvmmin")
                  res = Rvmmin::Rvmmin(par = par,
                                       fn = fn,
                                       gr = "grcentral", # "grfwd" = finite difference forward gradient (numerical gradient)
@@ -95,13 +99,13 @@ myOpt_N = function(candidates,fn,lower,upper,control=list(),gr=NULL,maxit = 200)
                  newVals = c(newVals,res$par,-res$value,6)
                },
                warning = function(w){
-                 print(paste0("RVMMIN WARNING: ",w))
+                 if (statusMessage) print(paste0("RVMMIN WARNING: ",w))
                  newVals = c(0,rep(0,dim),1) #Method code 1 is a (non informative) gap filler - Will be later erased.
                  return()
                },
                error = function(e){
 
-                 print(paste0("RVMMIN ERROR: ", e))
+                 if (statusMessage) print(paste0("RVMMIN ERROR: ", e))
                  newVals = c(0,rep(0,dim),1) #Method code 1 is a (non informative) gap filler - Will be later erased.
                  return()
                },
@@ -110,6 +114,7 @@ myOpt_N = function(candidates,fn,lower,upper,control=list(),gr=NULL,maxit = 200)
 
                # Hooke-Jeeves algorithm (Derivative free) - BOUNDED
                tryCatch(expr = {
+                 if (statusMessage) print("dfoptim::hjkb")
                  res = dfoptim::hjkb(par = par,
                                      fn = fn,
                                      lower = lower,
@@ -118,12 +123,12 @@ myOpt_N = function(candidates,fn,lower,upper,control=list(),gr=NULL,maxit = 200)
                  newVals = c(newVals,res$par,-res$value,7)
                },
                warning = function(w){
-                 print(paste0("DFOPTIM::HJKB WARNING: ",w))
+                 if (statusMessage) print(paste0("DFOPTIM::HJKB WARNING: ",w))
                  newVals = c(0,rep(0,dim),1) #Method code 1 is a (non informative) gap filler - Will be later erased.
                  return()
                },
                error = function(e){
-                 print(paste0("DFOPTIM::HJKB ERROR: ",e))
+                 if (statusMessage) print(paste0("DFOPTIM::HJKB ERROR: ",e))
                  newVals = c(0,rep(0,dim),1) #Method code 1 is a (non informative) gap filler - Will be later erased.
                  return()
                },
@@ -131,6 +136,7 @@ myOpt_N = function(candidates,fn,lower,upper,control=list(),gr=NULL,maxit = 200)
 
                # Nelder Mead (Derivative free) - UNBOUNDED
                tryCatch(expr = {
+                 if (statusMessage) print("stats::optim Nelder-Mead")
                  res = stats::optim(par = par,
                                     method = "Nelder-Mead",
                                     fn = fn,
@@ -143,12 +149,12 @@ myOpt_N = function(candidates,fn,lower,upper,control=list(),gr=NULL,maxit = 200)
                  }
                },
                warning = function(w){
-                 print(paste0("stats::optim Nelder-Mead WARNING: ",w))
+                 if (statusMessage) print(paste0("stats::optim Nelder-Mead WARNING: ",w))
                  newVals = c(0,rep(0,dim),1) #Method code 1 is a (non informative) gap filler - Will be later erased.
                  return()
                },
                error = function(e){
-                 print(paste0("stats::optim Nelder-Mead ERROR: ",e))
+                 if (statusMessage) print(paste0("stats::optim Nelder-Mead ERROR: ",e))
                  newVals = c(0,rep(0,dim),1) #Method code 1 is a (non informative) gap filler - Will be later erased.
                  return()
                },
@@ -157,6 +163,7 @@ myOpt_N = function(candidates,fn,lower,upper,control=list(),gr=NULL,maxit = 200)
 
                # Lightweight BFGS - BFGS with box constraints
                tryCatch(expr= {
+                 if (statusMessage) print("stats::optim L-BFGS-B")
                  res = stats::optim(par = par,
                                     fn = fn,
                                     method = "L-BFGS-B",
@@ -167,12 +174,12 @@ myOpt_N = function(candidates,fn,lower,upper,control=list(),gr=NULL,maxit = 200)
                  newVals = unname(c(newVals,res$par,-res$value,9))
                },
                warning = function(w){
-                 print(paste0("stats::optim L-BFGS-B WARNING: ",w))
+                 if (statusMessage) print(paste0("stats::optim L-BFGS-B WARNING: ",w))
                  newVals = c(0,rep(0,dim),1) #Method code 1 is a (non informative) gap filler - Will be later erased.
                  return()
                },
                error = function(e){
-                 print(paste0("stats::optim L-BFGS-B ERROR: ",e))
+                 if (statusMessage) print(paste0("stats::optim L-BFGS-B ERROR: ",e))
                  newVals = c(0,rep(0,dim),1) #Method code 1 is a (non informative) gap filler - Will be later erased.
                  return()
                },
