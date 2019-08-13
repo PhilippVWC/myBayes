@@ -9,7 +9,7 @@ License: Free license
 Encoding: UTF-8
 LazyData: true
 Imports:
-  Rcpp
+  Rcpp, Rvmmin, GenSA, dfoptim
 Depends: R (>= 3.1.1)
 RoxygenNote: 6.1.1
 LinkingTo: 
