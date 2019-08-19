@@ -14,6 +14,7 @@ Lik_gsm_cpp | A Gaussian Likelihood given time series data of the general symmet
 blurrVector | For statistical dispersion of deterministic vectors.
 CeBePa | For approximate parameter transformation from Gaussian distribution to Beta distribution
 collapse | Routine to remove equal and adjacent values of a vector.
+myOpt_N | Optimization in more than two dimensions with various algorithms (sim. Annealing, BFGS, etc.)
 
 ## Special remarks ##
 Many routines are implemented in C++ in order to increase performance. 

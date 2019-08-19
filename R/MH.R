@@ -102,7 +102,7 @@ MH = function(T = 1,x0,trKern=dnorm,sampler,N=1000,bounds){
                     min = -(x-a),
                     max = b-x) # Sample next candidate within bounds.
     A = min( 1 , (sampler(y)*trKern(y,x) / (sampler(x)*trKern(x,y)) ) )
-    if (A == 1) { chain[i] = y }
+    if (A == 1) { chain[i] = y } # jump to place with higher values. Accepted
     else {
       if ( A > runif(n = 1,
                      min = 0,
