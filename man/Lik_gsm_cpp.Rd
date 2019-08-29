@@ -4,7 +4,7 @@
 \alias{Lik_gsm_cpp}
 \title{Gaussian likelihood for given time series data}
 \usage{
-Lik_gsm_cpp(alpha, r, x0, Y, sigma, N_discr, method)
+Lik_gsm_cpp(alpha, r, x0, Y, w, sigma, N_discr, method)
 }
 \arguments{
 \item{alpha}{Double - Exponent of the gsm.}
