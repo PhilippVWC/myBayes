@@ -15,7 +15,7 @@ SOLID = 1
 #' @export
 LWD_GRID = 1.5 #line width for grids
 #' @export
-COLOR_BG_LEG = "#FFFF0099" # transparent yellow
+COLOR_BG_LEG = "#FFFFFF77" # transparent yellow
 #' @export
 COLOR_BG = "#00005599"
 #' @export
