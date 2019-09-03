@@ -5,6 +5,17 @@
 
 using namespace Rcpp;
 
+// ravrg
+Rcpp::NumericVector ravrg(Rcpp::NumericVector v);
+RcppExport SEXP _myBayes_ravrg(SEXP vSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type v(vSEXP);
+    rcpp_result_gen = Rcpp::wrap(ravrg(v));
+    return rcpp_result_gen;
+END_RCPP
+}
 // get_i
 double get_i(double x, Rcpp::NumericVector domain, int N_discr);
 RcppExport SEXP _myBayes_get_i(SEXP xSEXP, SEXP domainSEXP, SEXP N_discrSEXP) {
@@ -230,6 +241,7 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
+    {"_myBayes_ravrg", (DL_FUNC) &_myBayes_ravrg, 1},
     {"_myBayes_get_i", (DL_FUNC) &_myBayes_get_i, 3},
     {"_myBayes_vecMap_iter2", (DL_FUNC) &_myBayes_vecMap_iter2, 6},
     {"_myBayes_vecMap", (DL_FUNC) &_myBayes_vecMap, 4},

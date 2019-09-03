@@ -20,11 +20,11 @@ myOpt = function(candidates,fn,maximum = TRUE,maxit=200,bounds){
                }
 
                # Generalized simmulated Annealing
-               res = GenSA(par = par,
-                           fn = fn_minus,
-                           lower = bounds[1],
-                           upper = bounds[2],
-                           control = list(maxit = maxit))
+               res = GenSA::GenSA(par = par,
+                                  fn = fn_minus,
+                                  lower = bounds[1],
+                                  upper = bounds[2],
+                                  control = list(maxit = maxit))
                newVals = c(newVals,-res$value,res$par,3)
 
                # Simulated Annealing - UNBOUNDED
@@ -57,12 +57,12 @@ myOpt = function(candidates,fn,maximum = TRUE,maxit=200,bounds){
                }
 
                # Quasi Newton algorithm with approximated Hessian matrix - BOUNDED
-               res = Rvmmin(par = par,
-                            fn = fn_minus,
-                            gr = "grcentral", # "grfwd" = finite difference forward gradient (numerical gradient)
-                            lower = bounds[1],
-                            upper = bounds[2],
-                            maxit = maxit) #Stop computation, if estimators are out of bounds
+               res = Rvmmin::Rvmmin(par = par,
+                                    fn = fn_minus,
+                                    gr = "grcentral", # "grfwd" = finite difference forward gradient (numerical gradient)
+                                    lower = bounds[1],
+                                    upper = bounds[2],
+                                    maxit = maxit) #Stop computation, if estimators are out of bounds
                newVals = c(newVals,-res$value,res$par,6)
 
                # Lightweight BFGS - BFGS with box constraints

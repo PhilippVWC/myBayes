@@ -1,6 +1,23 @@
 #include <Rcpp.h>
 using namespace Rcpp;
 
+
+//' @export
+// [[Rcpp::export]]
+Rcpp::NumericVector ravrg(Rcpp::NumericVector v){
+  int N = v.size();
+  Rcpp::NumericVector cumv(N);
+  Rcpp::NumericVector cumvNormed(N);
+  cumv[0] = v[0];
+  cumvNormed[0] = cumv[0];
+  for( int i=1 ; i<N ; i++ ){
+    cumv[i] = v[i] + cumv[i-1];
+    cumvNormed[i] = cumv[i]/(i+1);
+  }
+  return(cumvNormed);
+}
+
+
 //' @title Get index position on discrete grid
 //' @description This function provides the corresponding index position on the specified grid.
 //' @param X Double - Continuous value, to be identified on specified grid.
