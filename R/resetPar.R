@@ -1,6 +1,6 @@
 #' @export
 resetPar = function(){
-  pdf()
+  png()
   freshPar = par(no.readonly = TRUE)
   dev.off()
   return(freshPar)

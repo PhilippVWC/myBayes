@@ -565,7 +565,7 @@ Rcpp::NumericVector gsm_iter_cpp(int N, double x0, double r, double alpha, int N
 //' #}
 //' @export
 // [[Rcpp::export]]
-double Lik_gsm_cpp(double alpha, double r, double x0, Rcpp::NumericVector Y, double w, double sigma, int N_discr, int method){
+double Lik_gsm_cpp(double alpha, double r, double x0, Rcpp::NumericVector Y, double sigma, int N_discr, int method){
   int n = Y.size();
   Rcpp::NumericVector X(n);
   if(N_discr==0){
@@ -582,7 +582,7 @@ double Lik_gsm_cpp(double alpha, double r, double x0, Rcpp::NumericVector Y, dou
     sum += pow(Y[i]-X[i],2.0);
   }
   //double L = pow(2.0*PI*pow(sigma,2),-0.5*n)*exp(-0.5*w*sum/pow(sigma,2.0));
-  double L = exp(-0.5*w*sum/pow(sigma,2.0));
+  double L = exp(-0.5*sum/pow(sigma,2.0));
   return(L);
 }
 

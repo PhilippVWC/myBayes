@@ -206,8 +206,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // Lik_gsm_cpp
-double Lik_gsm_cpp(double alpha, double r, double x0, Rcpp::NumericVector Y, double w, double sigma, int N_discr, int method);
-RcppExport SEXP _myBayes_Lik_gsm_cpp(SEXP alphaSEXP, SEXP rSEXP, SEXP x0SEXP, SEXP YSEXP, SEXP wSEXP, SEXP sigmaSEXP, SEXP N_discrSEXP, SEXP methodSEXP) {
+double Lik_gsm_cpp(double alpha, double r, double x0, Rcpp::NumericVector Y, double sigma, int N_discr, int method);
+RcppExport SEXP _myBayes_Lik_gsm_cpp(SEXP alphaSEXP, SEXP rSEXP, SEXP x0SEXP, SEXP YSEXP, SEXP sigmaSEXP, SEXP N_discrSEXP, SEXP methodSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -215,11 +215,10 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< double >::type r(rSEXP);
     Rcpp::traits::input_parameter< double >::type x0(x0SEXP);
     Rcpp::traits::input_parameter< Rcpp::NumericVector >::type Y(YSEXP);
-    Rcpp::traits::input_parameter< double >::type w(wSEXP);
     Rcpp::traits::input_parameter< double >::type sigma(sigmaSEXP);
     Rcpp::traits::input_parameter< int >::type N_discr(N_discrSEXP);
     Rcpp::traits::input_parameter< int >::type method(methodSEXP);
-    rcpp_result_gen = Rcpp::wrap(Lik_gsm_cpp(alpha, r, x0, Y, w, sigma, N_discr, method));
+    rcpp_result_gen = Rcpp::wrap(Lik_gsm_cpp(alpha, r, x0, Y, sigma, N_discr, method));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -255,7 +254,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_myBayes_iterFromMatrix_cpp", (DL_FUNC) &_myBayes_iterFromMatrix_cpp, 5},
     {"_myBayes_Dgsm_iter_cpp", (DL_FUNC) &_myBayes_Dgsm_iter_cpp, 6},
     {"_myBayes_gsm_iter_cpp", (DL_FUNC) &_myBayes_gsm_iter_cpp, 7},
-    {"_myBayes_Lik_gsm_cpp", (DL_FUNC) &_myBayes_Lik_gsm_cpp, 8},
+    {"_myBayes_Lik_gsm_cpp", (DL_FUNC) &_myBayes_Lik_gsm_cpp, 7},
     {"_myBayes_Lik_Dgsm_cpp", (DL_FUNC) &_myBayes_Lik_Dgsm_cpp, 6},
     {NULL, NULL, 0}
 };

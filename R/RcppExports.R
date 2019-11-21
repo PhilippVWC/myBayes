@@ -351,8 +351,8 @@ gsm_iter_cpp <- function(N, x0, r, alpha, N_discr, skipFirst, method) {
 #' #  return(L);
 #' #}
 #' @export
-Lik_gsm_cpp <- function(alpha, r, x0, Y, w, sigma, N_discr, method) {
-    .Call(`_myBayes_Lik_gsm_cpp`, alpha, r, x0, Y, w, sigma, N_discr, method)
+Lik_gsm_cpp <- function(alpha, r, x0, Y, sigma, N_discr, method) {
+    .Call(`_myBayes_Lik_gsm_cpp`, alpha, r, x0, Y, sigma, N_discr, method)
 }
 
 #' @title Gaussian likelihood for given data
