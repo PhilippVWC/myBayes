@@ -5,7 +5,7 @@
 \title{Optimize in multiple dimensions}
 \usage{
 myOpt_N(candidates, fn, lower, upper, gr = NULL, maxit = 200,
-  statusMessages = TRUE)
+  statusMessages = FALSE)
 }
 \arguments{
 \item{candidates}{data frame - With one set of parameters (par) for each row.}
@@ -21,7 +21,7 @@ of the gradient are used instead (see documentation of package "optim")}
 
 \item{maxit}{Maximum amount of iterations for BFGS, RVmmin and general simmulated Annealing.}
 
-\item{statusMessage}{Boolean - If set to true (default) the output is more verbose.}
+\item{statusMessage}{Boolean - Set to TRUE for more verbose output (default to FALSE).}
 }
 \value{
 data frame - One column for every successfully performed optimization algorithm. Every row corresponds to an optimized parameter. Last row corresponds

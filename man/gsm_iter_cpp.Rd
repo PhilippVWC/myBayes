@@ -18,6 +18,8 @@ gsm_iter_cpp(N, x0, r, alpha, N_discr, skipFirst, method)
 \item{N_discr}{integer - controlls discretization of state space (zero corresponds to continuous case)}
 
 \item{skipFirst}{Boolean - If set to FALSE, the resulting time series contains the initial value x0}
+
+\item{method}{integer - method of discretization with 1... round routine from base package (fast) or 2... matrix multiplication (slow)}
 }
 \value{
 vector of type double - the resulting time series
@@ -30,28 +32,36 @@ This routine is implemented in C++
 }
 \examples{
 //C++ DEFINITION
-NumericVector gsm_iter_cpp(int N, double x0, double r, double alpha, int N_discr,bool skipFirst){
-  N_discr--; //Decrement because the rounding routine maps to N_discr + 1 values
-  Rcpp::NumericVector X(N);
-  if(skipFirst){
-    if(N_discr == 0){
-      X[0] = gsm_cpp(x0,r,alpha);
-    }else{
-      X[0] = round(gsm_cpp(x0,r,alpha)*N_discr)/N_discr;
+Rcpp::NumericVector gsm_iter_cpp(int N, double x0, double r, double alpha, int N_discr,bool skipFirst, int method){
+  if(method==1){
+    if(N_discr>0){
+      N_discr--; //Decrement because the rounding routine maps to N_discr + 1 values
     }
-  }
-  if(N>1){
-    if(N_discr == 0){
-      for(int i = 1; i<N ; i++){
-        X[i] = gsm_cpp(X[i-1],r,alpha);
+    Rcpp::NumericVector X(N);
+    if(skipFirst){
+      if(N_discr == 0){
+        X[0] = gsm_cpp(x0,r,alpha);
+      }else{
+        X[0] = round(gsm_cpp(x0,r,alpha)*N_discr)/N_discr;
       }
     }else{
-      for(int i = 1; i<N ; i++){
-        X[i] = round(gsm_cpp(X[i-1],r,alpha)*N_discr)/N_discr;
+      X[0] = x0;
+    }
+    if(N>1){
+      if(N_discr == 0){
+        for(int i=1; i<N ; i++){
+          X[i] = gsm_cpp(X[i-1],r,alpha);
+        }
+      }else{
+        for(int i=1; i<N ; i++){
+          X[i] = round(gsm_cpp(X[i-1],r,alpha)*N_discr)/N_discr;
+        }
       }
     }
+    return(X);
+  }else{
+    return(Dgsm_iter_cpp(N,x0,r,alpha,N_discr,skipFirst));
   }
-  return(X);
 }
 }
 \author{

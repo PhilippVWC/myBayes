@@ -8,7 +8,7 @@
 #' @param gr A function to return the gradient for BFGS. If set to NULL, finite difference approximations
 #' of the gradient are used instead (see documentation of package "optim")
 #' @param maxit Maximum amount of iterations for BFGS, RVmmin and general simmulated Annealing.
-#' @param statusMessage Boolean - If set to true (default) the output is more verbose.
+#' @param statusMessage Boolean - Set to TRUE for more verbose output (default to FALSE).
 #' @details This function performs adequate error handling. In problematic cases, where optimization fails, the program is not interrupted but may
 #' return an empty data frame. Many optimization algorithms perform their tasks, but only those, which do successfully contribute to a column entry in
 #' the resulting data frame.
@@ -30,7 +30,7 @@
 #'               statusMessages = TRUE)
 #' print(res)# Columns are sorted in increasing order
 #' @export
-myOpt_N = function(candidates,fn,lower,upper,gr=NULL,maxit = 200,statusMessages = TRUE){
+myOpt_N = function(candidates,fn,lower,upper,gr=NULL,maxit = 200,statusMessages = FALSE){
   MX = apply(X = as.matrix(candidates),
              MARGIN = 1,
              FUN = function(par){
@@ -71,7 +71,7 @@ myOpt_N = function(candidates,fn,lower,upper,gr=NULL,maxit = 200,statusMessages 
                                       temp = 1, #Starting temperature
                                       tmax = 5 #number of function evaluations per temperature step
                                     ))
-                 if (!FALSE %in% (res$par <= lower & res$par >= upper)){
+                 if (!(FALSE %in% (res$par <= upper & res$par >= lower))){
                    newVals = c(newVals,res$par,res$value,4)
                  }else{
                    newVals = c(newVals,0,rep(0,dim),1)#method code 1 is a (non informative) gap filler - Will be erased later
@@ -100,7 +100,7 @@ myOpt_N = function(candidates,fn,lower,upper,gr=NULL,maxit = 200,statusMessages 
                                       maxit = maxit,
                                       reltol = 1e-8
                                     ))
-                 if (!FALSE %in% (res$par <= upper & res$par >= lower)){
+                 if (!(FALSE %in% (res$par <= upper & res$par >= lower))){
                    newVals = c(newVals,res$par,res$value,5)
                  }else{
                    newVals = c(newVals,0,rep(0,dim),1)#method code 1 is a (non informative) gap filler - Will be erased later
@@ -119,28 +119,28 @@ myOpt_N = function(candidates,fn,lower,upper,gr=NULL,maxit = 200,statusMessages 
                finally = {})
 
                # Quasi Newton algorithm with approximated Hessian matrix - BOUNDED
-               tryCatch(expr = {
-                 if (statusMessages) print("Rvmmin")
-                 res = Rvmmin::Rvmmin(par = par,
-                                      fn = fn,
-                                      gr = "grfwd", # "grfwd" = finite difference forward gradient (numerical gradient)
-                                      lower = lower,
-                                      upper = upper,
-                                      maxit = maxit) #Stop computation, if estimators are out of bounds
-                 newVals = c(newVals,res$par,res$value,6)
-               },
-               warning = function(w){
-                 if (statusMessages) print(paste0("RVMMIN WARNING: ",w))
-                 newVals = c(0,rep(0,dim),1) #Method code 1 is a (non informative) gap filler - Will be later erased.
-                 return()
-               },
-               error = function(e){
-
-                 if (statusMessages) print(paste0("RVMMIN ERROR: ", e))
-                 newVals = c(0,rep(0,dim),1) #Method code 1 is a (non informative) gap filler - Will be later erased.
-                 return()
-               },
-               finally = {})
+               # tryCatch(expr = {
+               #   if (statusMessages) print("Rvmmin")
+               #   res = Rvmmin::Rvmmin(par = par,
+               #                        fn = fn,
+               #                        gr = "grfwd", # "grfwd" = finite difference forward gradient (numerical gradient)
+               #                        lower = lower,
+               #                        upper = upper,
+               #                        maxit = maxit) #Stop computation, if estimators are out of bounds
+               #   newVals = c(newVals,res$par,res$value,6)
+               # },
+               # warning = function(w){
+               #   if (statusMessages) print(paste0("RVMMIN WARNING: ",w))
+               #   newVals = c(0,rep(0,dim),1) #Method code 1 is a (non informative) gap filler - Will be later erased.
+               #   return()
+               # },
+               # error = function(e){
+               #
+               #   if (statusMessages) print(paste0("RVMMIN ERROR: ", e))
+               #   newVals = c(0,rep(0,dim),1) #Method code 1 is a (non informative) gap filler - Will be later erased.
+               #   return()
+               # },
+               # finally = {})
 
 
                # Hooke-Jeeves algorithm (Derivative free) - BOUNDED
@@ -171,8 +171,7 @@ myOpt_N = function(candidates,fn,lower,upper,gr=NULL,maxit = 200,statusMessages 
                  res = stats::optim(par = par,
                                     method = "Nelder-Mead",
                                     fn = fn)
-                 newVals = c(newVals,res$par,res$value,8)
-                 if (!FALSE %in% (res$par <= upper & res$par >= lower)){
+                 if (!(FALSE %in% (res$par <= upper & res$par >= lower))){
                    newVals = c(newVals,res$value,res$par,8)
                  }else{
                    newVals = c(newVals,0,rep(0,dim),1)#method code 1 is a (non informative) gap filler - Will be erased later
