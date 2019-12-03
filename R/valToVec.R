@@ -16,3 +16,4 @@ valToVec = function(val,N=10,x_lower=0,x_upper=1){
     return(NA)
   }
 }
+

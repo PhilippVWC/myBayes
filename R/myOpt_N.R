@@ -16,6 +16,7 @@
 #' to the function value of the resulting optimized parameters.
 #' @author Philipp van Wickevoort Crommelin
 #' @examples
+#' install.packages(c("GenSA","dfoptim")
 #' fn = function(x) x[1]^2+x[2]^2
 #' candidates = data.frame("x" = c(1,-30),
 #'                         "y" = c(-5,10))
@@ -117,31 +118,6 @@ myOpt_N = function(candidates,fn,lower,upper,gr=NULL,maxit = 200,statusMessages 
                  return()
                },
                finally = {})
-
-               # Quasi Newton algorithm with approximated Hessian matrix - BOUNDED
-               # tryCatch(expr = {
-               #   if (statusMessages) print("Rvmmin")
-               #   res = Rvmmin::Rvmmin(par = par,
-               #                        fn = fn,
-               #                        gr = "grfwd", # "grfwd" = finite difference forward gradient (numerical gradient)
-               #                        lower = lower,
-               #                        upper = upper,
-               #                        maxit = maxit) #Stop computation, if estimators are out of bounds
-               #   newVals = c(newVals,res$par,res$value,6)
-               # },
-               # warning = function(w){
-               #   if (statusMessages) print(paste0("RVMMIN WARNING: ",w))
-               #   newVals = c(0,rep(0,dim),1) #Method code 1 is a (non informative) gap filler - Will be later erased.
-               #   return()
-               # },
-               # error = function(e){
-               #
-               #   if (statusMessages) print(paste0("RVMMIN ERROR: ", e))
-               #   newVals = c(0,rep(0,dim),1) #Method code 1 is a (non informative) gap filler - Will be later erased.
-               #   return()
-               # },
-               # finally = {})
-
 
                # Hooke-Jeeves algorithm (Derivative free) - BOUNDED
                tryCatch(expr = {

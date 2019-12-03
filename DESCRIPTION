@@ -1,15 +1,15 @@
 Package: myBayes
 Type: Package
-Title: Functions for time series analysis based on bayesian methods
+Title: Functions for time series analysis based on Bayesian methods
 Version: 0.1.0
 Author: J. C. Lemm, P. van W. Crommelin
 Maintainer: The package maintainer <philippcrommelin@wwu.de>
-Description: This package contains many discrete dynamical maps in 1D like the logistic map, lorenz map, etc. It also contains gaussian likelihoods for empirical data
+Description: This package is a toolbox for Bayesian inference on potentially chaotic time series.
 License: Free license
 Encoding: UTF-8
 LazyData: true
 Imports:
-  Rcpp, Rvmmin, GenSA, dfoptim
+  Rcpp, GenSA, dfoptim
 Depends: R (>= 3.1.1)
 RoxygenNote: 6.1.1
 LinkingTo: 
