@@ -19,10 +19,18 @@ axLabels3d | Individual manipulation of axis label annotations for 3d persp plot
 
 
 ## Special remarks ##
-Many routines are implemented in C++ in order to increase performance. 
+Many routines are implemented in C++ in order to increase performance.
 
 ## Dependencies ##
 C++ integration is accomplished by Dirk Eddelbuettels **Rcpp** package (For more information see [Rcpp](http://rcpp.org/)). An installation of Rcpp is crucial for proper functionality of *myBayes*.
+
+## Installation ##
+Install package *devtools* and install from github repository:
+```R
+install.packages("devtools")
+devtools::install_github("PhilippVWC/myBayes")
+```
+
 
 ## Contact ##
 For further remarks, please contact me under (philippcrommelin@wwu.de), Philipp van Wickevoort Crommelin.
