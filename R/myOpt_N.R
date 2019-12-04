@@ -16,7 +16,7 @@
 #' to the function value of the resulting optimized parameters.
 #' @author Philipp van Wickevoort Crommelin
 #' @examples
-#' install.packages(c("GenSA","dfoptim")
+#' install.packages(c("GenSA","dfoptim"))
 #' fn = function(x) x[1]^2+x[2]^2
 #' candidates = data.frame("x" = c(1,-30),
 #'                         "y" = c(-5,10))
@@ -107,12 +107,6 @@ myOpt_N = function(candidates,fn,lower,upper,gr=NULL,maxit = 200,statusMessages 
                # Quasi Newton algorithm with approximated Hessian matrix - UNBOUNDED
                tryCatch(expr = {
                  if (statusMessages) print("stats::optim BFGS")
-                 print("####################")
-                 print("BFGS expr block")
-                 print(environment())
-                 print(parent.env(environment()))
-                 print("####################")
-
                  res = stats::optim(par = par,
                                     fn = fn,
                                     method = "BFGS",
@@ -137,11 +131,6 @@ myOpt_N = function(candidates,fn,lower,upper,gr=NULL,maxit = 200,statusMessages 
                },
                error = function(e){
                  if (statusMessages) print(paste0("stats::optim BFGS ERROR: ",e))
-                 print("####################")
-                 print("BFGS error block")
-                 print(environment())
-                 print(parent.env(environment()))
-                 print("####################")
                  #proper environment
                  assign(x = "newVals",
                         value = c(newVals,0,rep(0,dim),1),#Method code 1 is a (non informative) gap filler - Will be later erased.
@@ -240,7 +229,6 @@ myOpt_N = function(candidates,fn,lower,upper,gr=NULL,maxit = 200,statusMessages 
                finally = {})
                return(newVals)
              })
-  print(MX)
   nms = c(names(candidates),"value","methodCode")#names for rows of data frame (see below)
   methods = c("invalid","GenSA","SA","BFGS","Hooke-Jeeves","Nelder-Mead","L-BFGS-B")
   Nrows = length(nms)
@@ -254,4 +242,3 @@ myOpt_N = function(candidates,fn,lower,upper,gr=NULL,maxit = 200,statusMessages 
   MX_df = MX_df[,order(MX_df[nrow(MX_df),])] #sort according to optimization results. Lowest values is left outermost entry.
   return(MX_df)
 }
-
