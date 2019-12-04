@@ -1,10 +1,9 @@
-#### Iteration mit Inputrauschen und abschliessendem Beobachtungsrauschen (Ausgangsrauschen)
-
 #' @export
+#' @details Iterated map with input and output noise
 iteratedMap_ioNoise = function( x
                                 ,r
                                 ,n
-                                ,funct  = logisticMap
+                                ,funct
                                 ,irfunct = identity # input noise function(u) rnorm(n=1,mean=u,sd=SD0)
                                 ,orfunct = identity # output noise function(u) rnorm(n=1,mean=u,sd=SD0)
 ){

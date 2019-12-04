@@ -17,7 +17,6 @@ collapse | Routine to remove equal and adjacent values of a vector.
 myOpt_N | Optimization in more than two dimensions with multiple algorithms (sim. Annealing, BFGS, etc.)
 axLabels3d | Individual manipulation of axis label annotations for 3d persp plots. 
 
-
 ## Special remarks ##
 Many routines are implemented in C++ in order to increase performance.
 
