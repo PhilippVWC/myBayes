@@ -37,6 +37,7 @@ return an empty data frame. Many optimization algorithms perform their tasks, bu
 the resulting data frame.
 }
 \examples{
+install.packages(c("GenSA","dfoptim")
 fn = function(x) x[1]^2+x[2]^2
 candidates = data.frame("x" = c(1,-30),
                         "y" = c(-5,10))

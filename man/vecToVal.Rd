@@ -19,3 +19,6 @@ the inner product of the given vector vec and the given axis.
 \description{
 Projection of a vector onto a given axis
 }
+\author{
+Philipp van Wickevoort Crommelin
+}
