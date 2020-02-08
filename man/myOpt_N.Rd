@@ -28,7 +28,7 @@ data frame - One column for every successfully performed optimization algorithm.
 to the function value of the resulting optimized parameters.
 }
 \description{
-This optimization routine performs minimum search in more than two dimensions. Variuous optimization algorithms
+This optimization routine performs minimum search in more than one dimension. Variuous optimization algorithms
 such as (generalized) simmulated annealing, BFGS (Broyden-Fletcher-Goldfarb-Shanno), Rvmmin, (hjkb) Hook-Jeeves and Nelder-Mead are subsequently performed.
 }
 \details{

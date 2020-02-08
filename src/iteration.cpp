@@ -2,6 +2,11 @@
 using namespace Rcpp;
 
 
+//' @title Running average
+//' @description This function calculates the running average of a given data vector
+//' @param v Vector of type double - data vector
+//' @return Vector of type double - The running mean/average
+//' @author Philipp van Wickevoort Crommelin
 //' @export
 // [[Rcpp::export]]
 Rcpp::NumericVector ravrg(Rcpp::NumericVector v){

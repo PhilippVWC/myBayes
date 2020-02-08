@@ -1,5 +1,5 @@
 #' @title Optimize in multiple dimensions
-#' @description This optimization routine performs minimum search in more than two dimensions. Variuous optimization algorithms
+#' @description This optimization routine performs minimum search in more than one dimension. Variuous optimization algorithms
 #' such as (generalized) simmulated annealing, BFGS (Broyden-Fletcher-Goldfarb-Shanno), Rvmmin, (hjkb) Hook-Jeeves and Nelder-Mead are subsequently performed.
 #' @param candidates data frame - With one set of parameters (par) for each row.
 #' @param  fn function of par - The function that is to be minimized.
@@ -43,14 +43,18 @@ myOpt_N = function(candidates,fn,lower,upper,gr=NULL,maxit = 200,statusMessages 
 
                # Generalized simmulated Annealing
                tryCatch(expr = {
-                 if (statusMessages) print("GenSA")
+                 if (statusMessages) print("[1/6] GenSA")
                  res = GenSA::GenSA(par = par,
                                     fn = fn,
                                     lower = lower,
                                     upper = upper,
                                     control = list("maxit" = maxit,
                                                    "max.time" = 10))
-                 newVals = c(newVals,res$par,res$value,2)
+                 if(!(FALSE %in% (res$par <= upper & res$par >= lower)) | !(TRUE %in% is.na(res$par))){
+                   newVals = c(newVals,res$par,res$value,2)
+                 }else{
+                   newVals = c(newVals,0,rep(0,dim),1)
+                 }
                },
                warning = function(w){
                  if (statusMessages) print(paste0("GenSA::GenSA WARNING: ",w))
@@ -72,7 +76,7 @@ myOpt_N = function(candidates,fn,lower,upper,gr=NULL,maxit = 200,statusMessages 
 
                # Simulated Annealing - UNBOUNDED
                tryCatch(expr = {
-                 if (statusMessages) print("stats::optim SANN")
+                 if (statusMessages) print("[2/6] stats::optim SANN")
                  res = stats::optim(par = par,
                                     fn = fn,
                                     method = "SANN",
@@ -80,7 +84,7 @@ myOpt_N = function(candidates,fn,lower,upper,gr=NULL,maxit = 200,statusMessages 
                                       temp = 1, #Starting temperature
                                       tmax = 5 #number of function evaluations per temperature step
                                     ))
-                 if (!(FALSE %in% (res$par <= upper & res$par >= lower))){
+                 if (!(FALSE %in% (res$par <= upper & res$par >= lower)) | !(TRUE %in% is.na(res$par))){
                    newVals = c(newVals,res$par,res$value,3)
                  }else{
                    newVals = c(newVals,0,rep(0,dim),1)#method code 1 is a (non informative) gap filler - Will be erased later
@@ -106,7 +110,7 @@ myOpt_N = function(candidates,fn,lower,upper,gr=NULL,maxit = 200,statusMessages 
 
                # Quasi Newton algorithm with approximated Hessian matrix - UNBOUNDED
                tryCatch(expr = {
-                 if (statusMessages) print("stats::optim BFGS")
+                 if (statusMessages) print("[3/6] stats::optim BFGS")
                  res = stats::optim(par = par,
                                     fn = fn,
                                     method = "BFGS",
@@ -115,7 +119,7 @@ myOpt_N = function(candidates,fn,lower,upper,gr=NULL,maxit = 200,statusMessages 
                                       maxit = maxit,
                                       reltol = 1e-8
                                     ))
-                 if (!(FALSE %in% (res$par <= upper & res$par >= lower))){
+                 if ((!(FALSE %in% (res$par <= upper & res$par >= lower)) | !(TRUE %in% is.na(res$par))) & res$convergence == 0){
                    newVals = c(newVals,res$par,res$value,4)
                  }else{
                    newVals = c(newVals,0,rep(0,dim),1)#method code 1 is a (non informative) gap filler - Will be erased later
@@ -141,13 +145,17 @@ myOpt_N = function(candidates,fn,lower,upper,gr=NULL,maxit = 200,statusMessages 
 
                # Hooke-Jeeves algorithm (Derivative free) - BOUNDED
                tryCatch(expr = {
-                 if (statusMessages) print("dfoptim::hjkb")
+                 if (statusMessages) print("[4/6] dfoptim::hjkb")
                  res = dfoptim::hjkb(par = par,
                                      fn = fn,
                                      lower = lower,
                                      upper = upper,
                                      control = list())
-                 newVals = c(newVals,res$par,res$value,5)
+                 if ((!(FALSE %in% (res$par <= upper & res$par >= lower)) | !(TRUE %in% is.na(res$par))) & res$convergence == 0){
+                   newVals = c(newVals,res$par,res$value,5)
+                 }else{
+                   newVals = c(newVals,0,rep(0,dim),1)#method code 1 is a (non informative) gap filler - Will be erased later
+                 }
                },
                warning = function(w){
                  if (statusMessages) print(paste0("DFOPTIM::HJKB WARNING: ",w))
@@ -169,11 +177,11 @@ myOpt_N = function(candidates,fn,lower,upper,gr=NULL,maxit = 200,statusMessages 
 
                # Nelder Mead (Derivative free) - UNBOUNDED
                tryCatch(expr = {
-                 if (statusMessages) print("stats::optim Nelder-Mead")
+                 if (statusMessages) print("[5/6] stats::optim Nelder-Mead")
                  res = stats::optim(par = par,
                                     method = "Nelder-Mead",
                                     fn = fn)
-                 if (!(FALSE %in% (res$par <= upper & res$par >= lower))){
+                 if((!(FALSE %in% (res$par <= upper & res$par >= lower)) | !(TRUE %in% is.na(res$par))) & res$convergence == 0){
                    newVals = c(newVals,res$value,res$par,6)
                  }else{
                    newVals = c(newVals,0,rep(0,dim),1)#method code 1 is a (non informative) gap filler - Will be erased later
@@ -200,7 +208,7 @@ myOpt_N = function(candidates,fn,lower,upper,gr=NULL,maxit = 200,statusMessages 
 
                # Lightweight BFGS - BFGS with box constraints
                tryCatch(expr= {
-                 if (statusMessages) print("stats::optim L-BFGS-B")
+                 if (statusMessages) print("[6/6] stats::optim L-BFGS-B")
                  res = stats::optim(par = par,
                                     fn = fn,
                                     method = "L-BFGS-B",
@@ -208,7 +216,11 @@ myOpt_N = function(candidates,fn,lower,upper,gr=NULL,maxit = 200,statusMessages 
                                     upper = upper,
                                     control = list()
                  )
-                 newVals = unname(c(newVals,res$par,res$value,7))
+                 if((!(FALSE %in% (res$par <= upper & res$par >= lower)) | !(TRUE %in% is.na(res$par))) & res$convergence == 0){
+                   newVals = c(newVals,res$par,res$value,7)
+                 }else{
+                   newVals = c(newVals,0,rep(0,dim),1)#method code 1 is a (non informative) gap filler - Will be erased later
+                 }
                },
                warning = function(w){
                  if (statusMessages) print(paste0("stats::optim L-BFGS-B WARNING: ",w))
@@ -238,6 +250,7 @@ myOpt_N = function(candidates,fn,lower,upper,gr=NULL,maxit = 200,statusMessages 
   rownames(MX_df) = nms
   colnames(MX_df) = methods[unlist(MX_df[Nrows,])] #Take last row with method codes to name the columns.
   MX_df = MX_df[,MX_df[Nrows,]!=1] #remove invalid column entries
+  if(ncol(MX_df)==0) stop("myOpt_N: No optimization results.")
   MX_df = MX_df[-Nrows,] #Remove method code row.
   MX_df = MX_df[,order(MX_df[nrow(MX_df),])] #sort according to optimization results. Lowest values is left outermost entry.
   return(MX_df)
