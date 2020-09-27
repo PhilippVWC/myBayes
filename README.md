@@ -1,7 +1,7 @@
 # Package myBayes #
 
 ## Overview ##
-*myBayes* is an R-package that serves as a collection of probabilistic methods for bayesian inference on dynamical systems with a strong focus on parametric and nonparametric choatic maps.
+*myBayes* is an R package that serves as a collection of probabilistic methods for bayesian inference on dynamical systems with a strong focus on parametric and nonparametric choatic maps.
 It is essentially a toolbox for parameter estimation, time series filter and prediction. The developer does not make himself responsable for potential errors, code stabililty nor mathematical correctness of the underlying logic.
 
 ## Contents ##
