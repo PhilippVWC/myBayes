@@ -2,6 +2,7 @@
 using namespace Rcpp;
 
 
+# define PI           3.14159265358979323846  /* pi */
 //' @title Running average
 //' @description This function calculates the running average of a given data vector
 //' @param v Vector of type double - data vector
